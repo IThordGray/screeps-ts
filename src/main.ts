@@ -1,3 +1,10 @@
+import { EventTypes } from "abstractions/event-types";
+import { Logger } from "helpers/logger";
+import { delegator } from "singletons/delegator.class";
+import { eventBus } from "singletons/event-bus";
+import { gameState } from "singletons/game-state";
+import { spawner } from "singletons/spawner";
+import { taskDistributor } from "singletons/task-distributor";
 import { ErrorMapper } from "utils/ErrorMapper";
 
 declare global {
@@ -13,11 +20,14 @@ declare global {
   interface Memory {
     uuid: number;
     log: any;
+
+    sources: { [sourceId: string]: Source };
+    controllers: { [controllerName: string]: StructureController };
+    scoutedRooms: { [roomName: string]: { controllerIds: string[]; sourceIds: string[] } }
   }
 
   interface CreepMemory {
     role: string;
-    room: string;
     working: boolean;
   }
 
@@ -33,11 +43,27 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  console.log(`Current game tick is ${Game.time}`);
+  Logger.log(`Current game tick is ${Game.time}`);
+
+  gameState.update();
+  spawner.update();
+  delegator.update();
+
+  // Figure out which creeps should which tasks.
+  taskDistributor.update();
+
+  // Distribute high priority tasks before delegating general work.
+  taskDistributor.run();
+
+  // Delegate general tasks.
+  delegator.run();
 
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
+      const creep = Memory.creeps[name];
+      eventBus.emit(EventTypes.creepDied, { ...creep, name });
+
       delete Memory.creeps[name];
     }
   }
