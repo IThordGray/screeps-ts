@@ -12,6 +12,6 @@ export class GoTo {
     const target = this._getTarget(creep);
     if (!target) return;
 
-    creep.moveTo(target);
+    creep.moveTo(new RoomPosition(target.x, target.y, target.roomName));
   }
 }

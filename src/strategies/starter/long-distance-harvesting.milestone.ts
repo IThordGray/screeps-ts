@@ -87,7 +87,10 @@ export class LongDistanceHarvestingMilestone extends Milestone {
   }
 
   private spawnHarvester(cost: number) {
-    const source = this._adjacentSources.find(x => (this._sourceCreepAllocationMap[x.id]?.size ?? 0) < this._ldhsPerSource);
+    const source = this._adjacentSources.find(source => {
+      const sourceAllocation = this._sourceCreepAllocationMap[source.id];
+      return (sourceAllocation?.size ?? 0) < this._ldhsPerSource;
+    });
     if (!source) return;
 
     spawner.spawnLdHarvester(cost, source.id);

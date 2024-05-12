@@ -22,7 +22,7 @@ export abstract class BaseCreep {
   };
 
   getName() {
-    return `${ this.role } ${ this.idx.toString().padStart(3, "0") }`;
+    return `${ this.role } ${ (this.idx++).toString().padStart(3, "0") }`;
   };
 
   abstract run(creep: Creep): void;

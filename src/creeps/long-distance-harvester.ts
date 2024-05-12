@@ -54,8 +54,8 @@ class LDHCreep extends BaseCreep {
     this._checkWorking.run(creep);
 
     creep.memory.working
-      ? this._ldHarvest.run(creep)
-      : this._deliver.run(creep);
+      ? this._deliver.run(creep)
+      : this._ldHarvest.run(creep);
   }
 
 }
