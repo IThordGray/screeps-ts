@@ -14,10 +14,11 @@ export interface DroneMemory extends CreepMemory {
 }
 
 class DroneCreep extends BaseCreep {
-  private _checkWorking = new CheckWorking({
+  private readonly _checkWorking = new CheckWorking({
     isWorkingAnd: (creep: Creep) => creep.store[RESOURCE_ENERGY] === 0,
     isNotWorkingAnd: (creep: Creep) => creep.store.getFreeCapacity() === 0
   });
+
   private readonly _withdraw = new Withdraw({
     getTarget: (creep: Creep) => creep.pos.findClosestByPath(FIND_STRUCTURES, {
       filter: s => (
@@ -29,8 +30,9 @@ class DroneCreep extends BaseCreep {
       )
     })
   });
-  override role: string = CreepTypes.drone;
-  override bodyParts: BodyPartConstant[] = [ WORK, CARRY, MOVE ];
+
+  override readonly role: string = CreepTypes.drone;
+  override readonly bodyParts: BodyPartConstant[] = [ WORK, CARRY, MOVE ];
 
   private doBuild(creep: Creep) {
     const target = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);

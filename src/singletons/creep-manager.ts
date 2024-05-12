@@ -4,14 +4,14 @@ import { droneCreep } from "creeps/drone";
 import { haulerCreep } from "creeps/hauler";
 import { ldHarvesterCreep } from "creeps/long-distance-harvester";
 import { minerCreep } from "creeps/miner";
-import { scoutScreep } from "creeps/scout";
+import { scoutCreep } from "creeps/scout";
 
 class CreepManager {
 
   readonly creepTypeMap = new Map<CreepType, BaseCreep>([
     [ CreepTypes.miner, minerCreep ],
     [ CreepTypes.hauler, haulerCreep ],
-    [ CreepTypes.scout, scoutScreep ],
+    [ CreepTypes.scout, scoutCreep ],
     [ CreepTypes.ldh, ldHarvesterCreep ],
     [ CreepTypes.drone, droneCreep ]
   ]);

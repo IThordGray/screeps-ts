@@ -6,7 +6,7 @@ export class Collect {
 
   private _target?: Source | null;
 
-  private _getTarget: (creep: Creep) => Source | null;
+  private readonly _getTarget: (creep: Creep) => Source | null;
 
   private readonly _pickup = new Pickup({
     getTarget: (creep: Creep) => {

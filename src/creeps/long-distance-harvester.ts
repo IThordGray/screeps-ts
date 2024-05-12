@@ -22,6 +22,7 @@ class LDHCreep extends BaseCreep {
     isNotWorkingAnd: (creep: Creep) => creep.store.getFreeCapacity() === 0,
     workingAction: (creep: Creep) => Deliver.action(creep)
   });
+
   private readonly _deliver = new Deliver({
     getTarget: (creep: Creep) => {
       let targets = creep.room.find(FIND_STRUCTURES, {
@@ -36,6 +37,7 @@ class LDHCreep extends BaseCreep {
       return targets[0];
     }
   });
+
   private readonly _ldHarvest = new LDHarvest({
     getTarget: (creep: Creep) => {
       if (!isLDHMemory(creep.memory)) return null;
@@ -44,8 +46,9 @@ class LDHCreep extends BaseCreep {
       return { pos: source.pos, sourceId: creep.memory.target };
     }
   });
-  override role = CreepTypes.ldh;
-  override bodyParts: BodyPartConstant[] = [ WORK, CARRY, CARRY, MOVE, MOVE ];
+
+  override readonly role = CreepTypes.ldh;
+  override readonly bodyParts: BodyPartConstant[] = [ WORK, CARRY, CARRY, MOVE, MOVE ];
 
   run(creep: Creep): void {
     this._checkWorking.run(creep);

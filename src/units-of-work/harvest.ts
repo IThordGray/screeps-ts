@@ -1,7 +1,7 @@
 export class Harvest {
   static action = (creep: Creep) => creep.say("⛏️ harvesting");
 
-  private _getTarget: (creep: Creep) => Source | null;
+  private readonly _getTarget: (creep: Creep) => Source | null;
 
   constructor(args: {
     getTarget: (creep: Creep) => Source | null

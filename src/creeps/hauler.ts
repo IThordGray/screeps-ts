@@ -18,10 +18,10 @@ class HaulerCreep extends BaseCreep {
   private readonly _checkWorking = new CheckWorking({
     isWorkingAnd: (creep: Creep) => creep.store[RESOURCE_ENERGY] === 0,
     notWorkingAction: (creep: Creep) => Collect.action(creep),
-
     isNotWorkingAnd: (creep: Creep) => creep.store.getFreeCapacity() === 0,
     workingAction: (creep: Creep) => Deliver.action(creep)
   });
+
   private readonly _deliver = new Deliver({
     getTarget: (creep: Creep) => {
       let targets = creep.room.find(FIND_STRUCTURES, {
@@ -36,6 +36,7 @@ class HaulerCreep extends BaseCreep {
       return targets[0];
     }
   });
+
   private readonly _collect = new Collect({
     getTarget: (creep: Creep) => {
       if (!isHaulerMemory(creep.memory)) return null;
@@ -46,8 +47,9 @@ class HaulerCreep extends BaseCreep {
       return source;
     }
   });
-  override role = CreepTypes.hauler;
-  override bodyParts = [ CARRY, MOVE ];
+
+  override readonly role = CreepTypes.hauler;
+  override readonly bodyParts = [ CARRY, MOVE ];
 
   run(creep: Creep) {
     this._checkWorking.run(creep);

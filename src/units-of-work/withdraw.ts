@@ -1,7 +1,7 @@
 export class Withdraw {
   static action = (creep: Creep) => creep.say("🧲 withdrawing");
 
-  private _getTarget: (creep: Creep) => AnyStructure | null;
+  private readonly _getTarget: (creep: Creep) => AnyStructure | null;
 
   constructor(args: {
     getTarget: (creep: Creep) => AnyStructure | null;

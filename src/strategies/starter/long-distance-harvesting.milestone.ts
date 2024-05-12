@@ -47,7 +47,7 @@ export class LongDistanceHarvestingMilestone extends Milestone {
     this.initAdjacentSources();
 
     // Allocate existing LDHs to the respective sources.
-    this.initLDHarversterAllocations();
+    this.initLDHarvesterAllocations();
 
     eventBus.on(EventTypes.creepDied, this.onCreepDeath.bind(this));
     eventBus.on(EventTypes.creepSpawned, this.onCreepSpawn.bind(this));
@@ -73,7 +73,7 @@ export class LongDistanceHarvestingMilestone extends Milestone {
     });
   }
 
-  private initLDHarversterAllocations() {
+  private initLDHarvesterAllocations() {
     const { refs: ldhs } = gameState.creeps[CreepTypes.ldh] ?? {};
     ldhs?.forEach(x => {
       if (!isLDHMemory(x.memory)) return;

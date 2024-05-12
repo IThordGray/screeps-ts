@@ -4,7 +4,7 @@ import { droneCreep } from "creeps/drone";
 import { haulerCreep } from "creeps/hauler";
 import { ldHarvesterCreep } from "creeps/long-distance-harvester";
 import { minerCreep } from "creeps/miner";
-import { scoutScreep } from "creeps/scout";
+import { scoutCreep } from "creeps/scout";
 import { eventBus } from "./event-bus";
 import { gameState } from "./game-state";
 
@@ -46,8 +46,8 @@ class Spawner {
   spawnScout(budget: number, roomIds: string[]) {
     if (!!this.spawning) return;
     const memory: any = { role: CreepTypes.scout, working: false, target: roomIds[0], roomIds: roomIds };
-    const name = scoutScreep.getName();
-    gameState.homeSpawn.spawnCreep(scoutScreep.getBody(budget), name, { memory });
+    const name = scoutCreep.getName();
+    gameState.homeSpawn.spawnCreep(scoutCreep.getBody(budget), name, { memory });
   }
 
   update() {

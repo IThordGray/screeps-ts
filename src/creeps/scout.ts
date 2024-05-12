@@ -13,8 +13,8 @@ export interface ScoutMemory extends CreepMemory {
 }
 
 class ScoutCreep extends BaseCreep {
-  override role = CreepTypes.scout;
-  override bodyParts: BodyPartConstant[] = [ MOVE, MOVE, MOVE ];
+  override readonly role = CreepTypes.scout;
+  override readonly bodyParts: BodyPartConstant[] = [ MOVE, MOVE, MOVE ];
 
   private goToRecycle(creep: Creep) {
   }
@@ -55,14 +55,14 @@ class ScoutCreep extends BaseCreep {
 
     // If I don't have a target room, try to get a new room from my list of room ids
     creep.memory.target ??= creep.memory.roomIds.shift();
-    // If I don't gave a target room still, go to spawn and recycle
+
+    // If I don't have a target room still, go to spawn and recycle
     if (!creep.memory.target) return this.goToRecycle(creep);
 
     // Scout the current room regardless if you reached your destination.
     this.scoutCurrentRoom(creep);
 
     // Now that I have a target room; Am I currently in the target room?
-
     if (creep.memory.target === creep.room.name) {
       creep.memory.target = undefined;
       return;
@@ -73,4 +73,4 @@ class ScoutCreep extends BaseCreep {
 
 }
 
-export const scoutScreep = new ScoutCreep();
+export const scoutCreep = new ScoutCreep();

@@ -1,9 +1,9 @@
 export class CheckWorking {
 
-  private _isNotWorking: (creep: Creep) => boolean;
-  private _isWorking: (creep: Creep) => boolean;
-  private _notWorkingAction?: (creep: Creep) => void;
-  private _workingAction?: (creep: Creep) => void;
+  private readonly _isNotWorking: (creep: Creep) => boolean;
+  private readonly _isWorking: (creep: Creep) => boolean;
+  private readonly _notWorkingAction?: (creep: Creep) => void;
+  private readonly _workingAction?: (creep: Creep) => void;
 
   constructor(args: {
     isWorkingAnd: (creep: Creep) => boolean,

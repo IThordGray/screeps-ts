@@ -20,26 +20,3 @@ export abstract class CreepTask extends Task {
 export abstract class StratTask extends Task {
 
 }
-
-export class DroneHarvest {
-  harvestDestination!: Source;
-  dropoffDestination!: StructureLink;
-
-  busy: boolean = false;
-
-  run(creep: Creep) {
-    if (this.busy && creep.store.energy === 0) {
-      this.busy = false;
-    } else if (!this.busy && creep.store.energy === creep.store.getCapacity()) {
-      this.busy = true;
-    }
-
-    if (this.busy) {
-      const result = creep.transfer(this.dropoffDestination, RESOURCE_ENERGY);
-      if (result === ERR_NOT_IN_RANGE) creep.moveTo(this.dropoffDestination);
-    } else {
-      const result = creep.harvest(this.harvestDestination);
-      if (result === ERR_NOT_IN_RANGE) creep.moveTo(this.harvestDestination);
-    }
-  }
-}

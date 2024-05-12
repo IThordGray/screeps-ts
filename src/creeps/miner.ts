@@ -19,8 +19,9 @@ class MinerCreep extends BaseCreep {
       return new Source(gameState.sources[creep.memory.target].id);
     }
   });
-  override role = CreepTypes.miner;
-  override bodyParts = [ WORK, WORK, MOVE ];
+
+  override readonly role = CreepTypes.miner;
+  override readonly bodyParts = [ WORK, WORK, MOVE ];
 
   run(creep: Creep) {
     if (!isMinerMemory(creep.memory)) return;

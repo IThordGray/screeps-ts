@@ -1,7 +1,7 @@
 export class Pickup {
   static action = (creep: Creep) => creep.say("🧲 collecting");
 
-  private _getTarget: (creep: Creep) => Resource | null;
+  private readonly _getTarget: (creep: Creep) => Resource | null;
 
   constructor(args: {
     getTarget: (creep: Creep) => Resource | null;

@@ -82,8 +82,7 @@ class TaskDistributor {
     drones.forEach(drone => {
       if (!isDroneMemory(drone.memory)) return;
 
-      const allocation = this._creepTaskAllocationMap[drone.name];
-      drone.memory.taskId = allocation;
+      drone.memory.taskId = this._creepTaskAllocationMap[drone.name];
     });
   }
 

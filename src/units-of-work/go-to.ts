@@ -1,6 +1,6 @@
 export class GoTo {
 
-  private _getTarget: (creep: Creep) => RoomPosition | null;
+  private readonly _getTarget: (creep: Creep) => RoomPosition | null;
 
   constructor(args: {
     getTarget: (creep: Creep) => RoomPosition | null

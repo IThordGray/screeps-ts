@@ -8,7 +8,6 @@ export class HarvestTask extends CreepTask {
   private readonly _checkWorking = new CheckWorking({
     isWorkingAnd: (creep: Creep) => creep.store[RESOURCE_ENERGY] === 0,
     workingAction: (creep: Creep) => Deliver.action(creep),
-
     isNotWorkingAnd: (creep: Creep) => creep.store.getFreeCapacity() === 0,
     notWorkingAction: (creep: Creep) => Harvest.action(creep)
   });

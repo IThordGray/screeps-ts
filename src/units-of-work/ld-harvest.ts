@@ -4,7 +4,7 @@ import { Harvest } from "./harvest";
 
 export class LDHarvest {
 
-  private _getTarget: (creep: Creep) => ({ pos: RoomPosition, sourceId: Id<Source> }) | null;
+  private readonly _getTarget: (creep: Creep) => ({ pos: RoomPosition, sourceId: Id<Source> }) | null;
 
   private readonly _goTo = new GoTo({
     getTarget: (creep: Creep) => {
