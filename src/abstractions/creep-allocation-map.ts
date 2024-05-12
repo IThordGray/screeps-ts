@@ -1,22 +1,22 @@
 export class CreepSourceAllocationMap {
-    private _creepSourceAllocationMap = new Map();
-    private _sourceCreepAllocationMap = new Map();
+  private _creepSourceAllocationMap = new Map();
+  private _sourceCreepAllocationMap = new Map();
 
-    setCreepName(sourceId: string, creepName: string | undefined) {
-        this._sourceCreepAllocationMap.set(sourceId, creepName);
-        this._creepSourceAllocationMap.set(creepName, sourceId);
-    }
+  getCreepName(sourceId: string) {
+    return this._sourceCreepAllocationMap.get(sourceId);
+  }
 
-    setSourceId(creepName: string, sourceId: string | undefined) {
-        this._creepSourceAllocationMap.set(creepName, sourceId);
-        this._sourceCreepAllocationMap.set(sourceId, creepName);
-    }
+  getSourceId(creepName: string) {
+    return this._creepSourceAllocationMap.get(creepName);
+  }
 
-    getCreepName(sourceId: string) {
-        return this._sourceCreepAllocationMap.get(sourceId);
-    }
+  setCreepName(sourceId: string, creepName: string | undefined) {
+    this._sourceCreepAllocationMap.set(sourceId, creepName);
+    this._creepSourceAllocationMap.set(creepName, sourceId);
+  }
 
-    getSourceId(creepName: string) {
-        return this._creepSourceAllocationMap.get(creepName);
-    }
+  setSourceId(creepName: string, sourceId: string | undefined) {
+    this._creepSourceAllocationMap.set(creepName, sourceId);
+    this._sourceCreepAllocationMap.set(sourceId, creepName);
+  }
 }

@@ -1,4 +1,3 @@
-import { CreepSourceAllocationMap } from "abstractions/creep-allocation-map";
 import { CreepTypes } from "abstractions/creep-types";
 import { EventTypes } from "abstractions/event-types";
 import { Milestone } from "classes/milestone";
@@ -30,7 +29,7 @@ export class HarvestHaulerMilestone extends Milestone {
     });
 
   private onCreepSpawn = (name: string) => {
-    Logger.success(`Creep spawned: ${name}`);
+    Logger.success(`Creep spawned: ${ name }`);
 
     const creep = Game.creeps[name];
 
@@ -46,7 +45,7 @@ export class HarvestHaulerMilestone extends Milestone {
   };
 
   private onCreepDeath = (memory: CreepMemory & { name: string }) => {
-    Logger.warn(`Creep died: ${memory.name}`);
+    Logger.warn(`Creep died: ${ memory.name }`);
 
     if (isMinerMemory(memory)) {
       delete this._minerSourceAllocationMap[memory.name];
@@ -96,24 +95,20 @@ export class HarvestHaulerMilestone extends Milestone {
     });
   }
 
-  private spawnMiner(cost: number) {
-    const source = this._roomSources.find(x => !this._sourceMinerAllocationMap[x.id]);
-    console.log('Miner sourceId: ', source?.id);
-    if (!source) return;
-
-    spawner.spawnMiner(cost, source.id);
-  }
-
   private spawnHauler(cost: number) {
     const source = this._roomSources.find(x => !this._sourceHaulerAllocationMap[x.id]);
-    console.log('Hauler sourceId: ', source?.id);
+    console.log("Hauler sourceId: ", source?.id);
     if (!source) return;
 
     spawner.spawnHauler(cost, source.id);
   }
 
-  init(): void {
-    taskDistributor.addTask(new HarvestTask());
+  private spawnMiner(cost: number) {
+    const source = this._roomSources.find(x => !this._sourceMinerAllocationMap[x.id]);
+    console.log("Miner sourceId: ", source?.id);
+    if (!source) return;
+
+    spawner.spawnMiner(cost, source.id);
   }
 
   condition(...args: any[]) {
@@ -124,6 +119,10 @@ export class HarvestHaulerMilestone extends Milestone {
     if (miners !== haulers) return false;
 
     return true;
+  }
+
+  init(): void {
+    taskDistributor.addTask(new HarvestTask());
   }
 
   run(...args: any[]) {
@@ -137,7 +136,7 @@ export class HarvestHaulerMilestone extends Milestone {
 
     // I have sources, but no miners.
     if (!miners && this._roomSources.length) {
-      Logger.info('I have sources, but no miners.')
+      Logger.info("I have sources, but no miners.");
       const cost = minerCreep.minCost * multiplier;
       return this.spawnMiner(cost);
     }
@@ -146,19 +145,19 @@ export class HarvestHaulerMilestone extends Milestone {
 
     // I have some miners and hauler, but there are more haulers than miners.
     if (miners < haulers && this._roomSources.length) {
-      Logger.info('I have more haulers than miners.')
+      Logger.info("I have more haulers than miners.");
       return this.spawnMiner(availableEnergy);
     }
 
     // I have some miners and haulers, but there are more miners than haulers.
     if (miners > haulers) {
-      Logger.info('I have more miners than haulers.')
+      Logger.info("I have more miners than haulers.");
       return this.spawnHauler(availableEnergy);
     }
 
     // I have the same amount of miners and haulers, but there are still unallocated sources available.
     if (this._roomSources.length > miners) {
-      Logger.info('I have unallocated sources available for mining.')
+      Logger.info("I have unallocated sources available for mining.");
       return this.spawnMiner(availableEnergy);
     }
   }

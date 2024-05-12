@@ -1,9 +1,9 @@
 import { Strat } from "classes/strat";
+import { Logger } from "helpers/logger";
 import { DroneMilestone } from "./drone.milestone";
+import { LongDistanceHarvestingMilestone } from "./long-distance-harvesting.milestone";
 import { HarvestHaulerMilestone } from "./mining.milestone";
 import { InitialScoutingMilestone } from "./scouting.milestone";
-import { LongDistanceHarvestingMilestone } from "./long-distance-harvesting.milestone";
-import { Logger } from "helpers/logger";
 
 export class StarterStrat extends Strat {
   constructor() {
@@ -16,11 +16,11 @@ export class StarterStrat extends Strat {
     this._milestones.push(new InitialScoutingMilestone());
 
     // Build a long distance harvester x3 per adjacent rooms
-    this._milestones.push(new LongDistanceHarvestingMilestone())
+    this._milestones.push(new LongDistanceHarvestingMilestone());
   }
 
   run(): void {
-    Logger.info(this._currentMilestone?.constructor.name ?? 'No milestone found');
+    Logger.info(this._currentMilestone?.constructor.name ?? "No milestone found");
     this._currentMilestone?.run();
   }
 }

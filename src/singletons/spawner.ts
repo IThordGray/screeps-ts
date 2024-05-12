@@ -15,17 +15,6 @@ class Spawner {
     return gameState.homeSpawn.spawning;
   }
 
-  update() {
-    if (this.spawning) {
-      this._currentlySpawning = this.spawning.name;
-    }
-
-    if (!this.spawning && this._currentlySpawning) {
-      eventBus.emit(EventTypes.creepSpawned, this._currentlySpawning);
-      this._currentlySpawning = undefined;
-    }
-  }
-
   spawnDrone(budget: number) {
     if (this.spawning) return;
     const memory: any = { role: CreepTypes.drone, working: false };
@@ -40,13 +29,6 @@ class Spawner {
     gameState.homeSpawn.spawnCreep(haulerCreep.getBody(budget), name, { memory });
   }
 
-  spawnMiner(budget: number, sourceId: Id<Source>) {
-    if (!!this.spawning) return;
-    const memory: any = { role: CreepTypes.miner, working: false, target: sourceId };
-    const name = minerCreep.getName();
-    gameState.homeSpawn.spawnCreep(minerCreep.getBody(budget), name, { memory });
-  }
-
   spawnLdHarvester(budget: number, sourceId: Id<Source>) {
     if (!!this.spawning) return;
     const memory: any = { role: CreepTypes.ldh, working: false, target: sourceId };
@@ -54,11 +36,29 @@ class Spawner {
     gameState.homeSpawn.spawnCreep(ldHarvesterCreep.getBody(budget), name, { memory });
   }
 
+  spawnMiner(budget: number, sourceId: Id<Source>) {
+    if (!!this.spawning) return;
+    const memory: any = { role: CreepTypes.miner, working: false, target: sourceId };
+    const name = minerCreep.getName();
+    gameState.homeSpawn.spawnCreep(minerCreep.getBody(budget), name, { memory });
+  }
+
   spawnScout(budget: number, roomIds: string[]) {
     if (!!this.spawning) return;
     const memory: any = { role: CreepTypes.scout, working: false, target: roomIds[0], roomIds: roomIds };
     const name = scoutScreep.getName();
     gameState.homeSpawn.spawnCreep(scoutScreep.getBody(budget), name, { memory });
+  }
+
+  update() {
+    if (this.spawning) {
+      this._currentlySpawning = this.spawning.name;
+    }
+
+    if (!this.spawning && this._currentlySpawning) {
+      eventBus.emit(EventTypes.creepSpawned, this._currentlySpawning);
+      this._currentlySpawning = undefined;
+    }
   }
 }
 

@@ -1,4 +1,4 @@
 export const EventTypes = {
-    creepDied: 'creepDied',
-    creepSpawned: 'creepSpawned'
-}
+  creepDied: "creepDied",
+  creepSpawned: "creepSpawned"
+};

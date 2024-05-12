@@ -16,6 +16,7 @@ declare global {
     Types added in this `global` block are in an ambient, global context. This is needed because `main.ts` is a module file (uses import or export).
     Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
   */
+
   // Memory extension samples
   interface Memory {
     uuid: number;
@@ -23,7 +24,7 @@ declare global {
 
     sources: { [sourceId: string]: Source };
     controllers: { [controllerName: string]: StructureController };
-    scoutedRooms: { [roomName: string]: { controllerIds: string[]; sourceIds: string[] } }
+    scoutedRooms: { [roomName: string]: { controllerIds: string[]; sourceIds: string[] } };
   }
 
   interface CreepMemory {
@@ -43,7 +44,7 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  Logger.log(`Current game tick is ${Game.time}`);
+  Logger.log(`Current game tick is ${ Game.time }`);
 
   gameState.update();
   spawner.update();

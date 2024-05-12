@@ -7,6 +7,13 @@ export abstract class Strat {
   protected _currentMilestone: Milestone | undefined;
   protected _strategyTask: StratTask | undefined;
 
+  private getCurrentMilestone(): Milestone | undefined {
+    for (const milestone of this._milestones) {
+      if (!milestone.condition()) return milestone;
+    }
+    return undefined;
+  }
+
   protected cleanup(): void {
   }
 
@@ -14,11 +21,9 @@ export abstract class Strat {
     this.cleanup();
   }
 
-  private getCurrentMilestone(): Milestone | undefined {
-    for (const milestone of this._milestones) {
-      if (!milestone.condition()) return milestone;
-    }
-    return undefined;
+  run() {
+    if (this._strategyTask) return this._strategyTask.run();
+    return this._currentMilestone?.run();
   }
 
   update() {
@@ -32,10 +37,5 @@ export abstract class Strat {
 
     this._currentMilestone = newMilestone;
     if (!this._currentMilestone) this.done();
-  }
-
-  run() {
-    if (this._strategyTask) return this._strategyTask.run();
-    return this._currentMilestone?.run();
   }
 }

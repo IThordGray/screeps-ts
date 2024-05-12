@@ -10,15 +10,17 @@ export class CreepState {
   refs: Creep[] = [];
 
   // Number of creeps
-  get count() { return this.refs.length }
+  get count() {
+    return this.refs.length;
+  }
 }
 
 class GameState {
-  get homeSpawn() {
-    return Game.spawns['Spawn1'];
-  }
-
   creeps: { [creepName: string]: CreepState } = {};
+
+  get homeSpawn() {
+    return Game.spawns["Spawn1"];
+  }
 
   get sources(): { [sourceId: string]: Source; } {
     return Memory.sources;
@@ -38,6 +40,10 @@ class GameState {
     Memory.scoutedRooms ??= {};
   }
 
+  getCreepCount(role: CreepType) {
+    return this.creeps[role]?.count ?? 0;
+  }
+
   update() {
     this.creeps = {};
 
@@ -46,10 +52,6 @@ class GameState {
       this.creeps[creepRole] ??= new CreepState();
       this.creeps[creepRole].refs.push(creep);
     });
-  }
-
-  getCreepCount(role: CreepType) {
-    return this.creeps[role]?.count ?? 0;
   }
 
 }

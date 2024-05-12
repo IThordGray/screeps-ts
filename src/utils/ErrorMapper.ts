@@ -3,6 +3,8 @@ import { SourceMapConsumer } from "source-map";
 export class ErrorMapper {
   // Cache consumer
   private static _consumer?: SourceMapConsumer;
+  // Cache previously mapped traces to improve performance
+  public static cache: { [key: string]: string } = {};
 
   public static get consumer(): SourceMapConsumer {
     if (this._consumer == null) {
@@ -11,9 +13,6 @@ export class ErrorMapper {
 
     return this._consumer;
   }
-
-  // Cache previously mapped traces to improve performance
-  public static cache: { [key: string]: string } = {};
 
   /**
    * Generates a stack trace using a source map generate original symbol names.
@@ -44,14 +43,14 @@ export class ErrorMapper {
 
         if (pos.line != null) {
           if (pos.name) {
-            outStack += `\n    at ${pos.name} (${pos.source}:${pos.line}:${pos.column})`;
+            outStack += `\n    at ${ pos.name } (${ pos.source }:${ pos.line }:${ pos.column })`;
           } else {
             if (match[1]) {
               // no original source file name known - use file name from given trace
-              outStack += `\n    at ${match[1]} (${pos.source}:${pos.line}:${pos.column})`;
+              outStack += `\n    at ${ match[1] } (${ pos.source }:${ pos.line }:${ pos.column })`;
             } else {
               // no original source file name known or in given trace - omit name
-              outStack += `\n    at ${pos.source}:${pos.line}:${pos.column}`;
+              outStack += `\n    at ${ pos.source }:${ pos.line }:${ pos.column }`;
             }
           }
         } else {
@@ -76,9 +75,9 @@ export class ErrorMapper {
         if (e instanceof Error) {
           if ("sim" in Game.rooms) {
             const message = `Source maps don't work in the simulator - displaying original error`;
-            console.log(`<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`);
+            console.log(`<span style='color:red'>${ message }<br>${ _.escape(e.stack) }</span>`);
           } else {
-            console.log(`<span style='color:red'>${_.escape(this.sourceMappedStackTrace(e))}</span>`);
+            console.log(`<span style='color:red'>${ _.escape(this.sourceMappedStackTrace(e)) }</span>`);
           }
         } else {
           // can't handle it

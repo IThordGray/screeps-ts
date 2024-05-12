@@ -5,7 +5,7 @@ import { uniqueId } from "lodash";
 
 // A creep is more likely to pick up a task with higher prio.
 export abstract class Task {
-  id = uniqueId()
+  id = uniqueId();
   priority = 0;
 
   abstract run(...args: any[]): void;

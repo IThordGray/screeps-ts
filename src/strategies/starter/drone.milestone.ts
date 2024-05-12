@@ -6,21 +6,21 @@ import { spawner } from "singletons/spawner";
 import { taskDistributor } from "singletons/task-distributor";
 
 export class DroneMilestone extends Milestone {
-    constructor() {
-        super();
-    }
+  constructor() {
+    super();
+  }
 
-    init(): void {
-        taskDistributor.addTask(new HarvestTask());
-    }
+  condition(...args: any[]): boolean {
+    const drones = gameState.getCreepCount(CreepTypes.drone);
+    return !!drones;
+  }
 
-    condition(...args: any[]): boolean {
-        const drones = gameState.getCreepCount(CreepTypes.drone);
-        return !!drones;
-    }
+  init(): void {
+    taskDistributor.addTask(new HarvestTask());
+  }
 
-    run(...args: any[]): void {
-        const availableEnergy = gameState.homeSpawn.room.energyCapacityAvailable;
-        spawner.spawnDrone(availableEnergy);
-    }
+  run(...args: any[]): void {
+    const availableEnergy = gameState.homeSpawn.room.energyCapacityAvailable;
+    spawner.spawnDrone(availableEnergy);
+  }
 }

@@ -11,9 +11,9 @@ class CreepManager {
   readonly creepTypeMap = new Map<CreepType, BaseCreep>([
     [ CreepTypes.miner, minerCreep ],
     [ CreepTypes.hauler, haulerCreep ],
-    [ CreepTypes.scout, scoutScreep],
-    [ CreepTypes.ldh, ldHarvesterCreep],
-    [ CreepTypes.drone, droneCreep],
+    [ CreepTypes.scout, scoutScreep ],
+    [ CreepTypes.ldh, ldHarvesterCreep ],
+    [ CreepTypes.drone, droneCreep ]
   ]);
 
   run(...args: any[]) {
