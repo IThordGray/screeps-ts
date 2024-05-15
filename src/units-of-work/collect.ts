@@ -2,34 +2,35 @@ import { Pickup } from "./pickup";
 import { Withdraw } from "./withdraw";
 
 export class Collect {
+  static state = 'collecting';
   static action = (creep: Creep) => creep.say("🔄 collect");
 
-  private _target?: Source | null;
+  private _target?: RoomPosition | null;
 
-  private readonly _getTarget: (creep: Creep) => Source | null;
+  private readonly _getTarget: (creep: Creep) => RoomPosition | null;
 
   private readonly _pickup = new Pickup({
     getTarget: (creep: Creep) => {
-      const source = this._getTarget(creep);
-      if (!source) return null;
+      const pos = this._getTarget(creep);
+      if (!pos) return null;
 
-      return source.pos.findInRange(FIND_DROPPED_RESOURCES, 5)[0];
+      return pos.findInRange(FIND_DROPPED_RESOURCES, 5)[0];
     }
   });
 
   private readonly _withdraw = new Withdraw({
     getTarget: (creep: Creep) => {
-      const source = this._getTarget(creep);
-      if (!source) return null;
+      const pos = this._getTarget(creep);
+      if (!pos) return null;
 
-      return source.pos.findInRange(FIND_STRUCTURES, 5, {
+      return pos.findInRange(FIND_STRUCTURES, 5, {
         filter: s => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
       })[0];
     }
   });
 
   constructor(args: {
-    getTarget: (creep: Creep) => Source | null
+    getTarget: (creep: Creep) => RoomPosition | null
   }) {
 
     this._getTarget = (creep: Creep) => {

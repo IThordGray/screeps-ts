@@ -1,4 +1,5 @@
 export class Deliver {
+  static state = 'delivering';
   static action = (creep: Creep) => creep.say("🚚 deliver");
 
   private readonly _getTarget: (creep: Creep) => AnyStructure | null;

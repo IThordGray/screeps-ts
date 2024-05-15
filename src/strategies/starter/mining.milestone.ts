@@ -1,17 +1,15 @@
 import { CreepTypes } from "abstractions/creep-types";
-import { EventTypes } from "abstractions/event-types";
 import { Milestone } from "classes/milestone";
-import { HarvestTask } from "creep-tasks/harvest.task";
-import { haulerCreep, isHaulerMemory } from "creeps/hauler";
-import { isMinerMemory, minerCreep } from "creeps/miner";
+import { haulerCreep, HaulerMemory } from "creeps/hauler";
+import { minerCreep, MinerMemory } from "creeps/miner";
 import { Logger } from "helpers/logger";
-import { eventBus } from "singletons/event-bus";
 import { gameState } from "singletons/game-state";
 import { spawner } from "singletons/spawner";
-import { taskDistributor } from "singletons/task-distributor";
+import { HarvestTask } from "../../creep-tasks/harvest.task";
+import { HaulerTask } from "../../creep-tasks/hauler.task";
+import { taskDistributor } from "../../singletons/task-distributor";
 
-
-export class HarvestHaulerMilestone extends Milestone {
+export class MiningMilestone extends Milestone {
 
   private _minerSourceAllocationMap: { [creepName: string]: string } = {};
   private _sourceMinerAllocationMap: { [sourceName: string]: string } = {};
@@ -19,8 +17,7 @@ export class HarvestHaulerMilestone extends Milestone {
   private _haulerSourceAllocationMap: { [creepName: string]: string } = {};
   private _sourceHaulerAllocationMap: { [sourceName: string]: string } = {};
 
-
-  private _roomSources = gameState.homeSpawn.room
+  private readonly _roomSources = gameState.homeSpawn.room
     .find(FIND_SOURCES)
     .sort((a, b) => {
       const rangeA = gameState.homeSpawn.pos.getRangeTo(a);
@@ -28,76 +25,48 @@ export class HarvestHaulerMilestone extends Milestone {
       return rangeA - rangeB;
     });
 
-  private onCreepSpawn = (name: string) => {
-    Logger.success(`Creep spawned: ${ name }`);
-
-    const creep = Game.creeps[name];
-
-    if (isMinerMemory(creep.memory)) {
-      this._minerSourceAllocationMap[name] = creep.memory.target;
-      this._sourceMinerAllocationMap[creep.memory.target] = name;
-    }
-
-    if (isHaulerMemory(creep.memory)) {
-      this._haulerSourceAllocationMap[name] = creep.memory.target;
-      this._sourceHaulerAllocationMap[creep.memory.target] = name;
-    }
-  };
-
-  private onCreepDeath = (memory: CreepMemory & { name: string }) => {
-    Logger.warn(`Creep died: ${ memory.name }`);
-
-    if (isMinerMemory(memory)) {
-      delete this._minerSourceAllocationMap[memory.name];
-      delete this._sourceMinerAllocationMap[memory.target];
-    }
-
-    if (isHaulerMemory(memory)) {
-      delete this._haulerSourceAllocationMap[memory.name];
-      delete this._sourceHaulerAllocationMap[memory.target];
-    }
-  };
-
   constructor() {
     super();
 
     this._roomSources.forEach((source) => {
       gameState.sources[source.id] = source;
     });
-
-    this.initMinerAllocations();
-
-    this.initHaulerAllocations();
-
-    eventBus.on(EventTypes.creepDied, this.onCreepDeath.bind(this));
-    eventBus.on(EventTypes.creepSpawned, this.onCreepSpawn.bind(this));
   }
 
   private initHaulerAllocations() {
-    const { refs: haulers } = gameState.creeps[CreepTypes.hauler] ?? {};
-    haulers?.forEach(x => {
-      if (!isHaulerMemory(x.memory)) return;
-      if (!x.memory.target) return;
+    this._haulerSourceAllocationMap = {};
+    this._sourceHaulerAllocationMap = {};
 
-      this._haulerSourceAllocationMap[x.name] = x.memory.target;
-      this._sourceHaulerAllocationMap[x.memory.target] = x.name;
+    const haulerState = gameState.creeps[CreepTypes.hauler];
+    if (!haulerState?.creeps?.length) return;
+
+    haulerState.creeps.forEach(creep => {
+      const memory = creep.memory as HaulerMemory;
+      if (!memory.target) return;
+
+      this._haulerSourceAllocationMap[creep.name] = memory.target;
+      this._sourceHaulerAllocationMap[memory.target] = creep.name;
     });
   }
 
   private initMinerAllocations() {
-    const { refs: miners } = gameState.creeps[CreepTypes.miner] ?? {};
-    miners?.forEach(x => {
-      if (!isMinerMemory(x.memory)) return;
-      if (!x.memory.target) return;
+    this._minerSourceAllocationMap = {};
+    this._sourceMinerAllocationMap = {};
 
-      this._minerSourceAllocationMap[x.name] = x.memory.target;
-      this._sourceMinerAllocationMap[x.memory.target] = x.name;
+    const minerState = gameState.creeps[CreepTypes.miner];
+    if (!minerState?.creeps?.length) return;
+
+    minerState.creeps.forEach(creep => {
+      const memory = creep.memory as MinerMemory;
+      if (!memory.target) return;
+
+      this._minerSourceAllocationMap[creep.name] = memory.target;
+      this._sourceMinerAllocationMap[memory.target] = creep.name;
     });
   }
 
   private spawnHauler(cost: number) {
     const source = this._roomSources.find(x => !this._sourceHaulerAllocationMap[x.id]);
-    console.log("Hauler sourceId: ", source?.id);
     if (!source) return;
 
     spawner.spawnHauler(cost, source.id);
@@ -105,13 +74,12 @@ export class HarvestHaulerMilestone extends Milestone {
 
   private spawnMiner(cost: number) {
     const source = this._roomSources.find(x => !this._sourceMinerAllocationMap[x.id]);
-    console.log("Miner sourceId: ", source?.id);
     if (!source) return;
 
     spawner.spawnMiner(cost, source.id);
   }
 
-  condition(...args: any[]) {
+  condition() {
     const miners = gameState.getCreepCount(CreepTypes.miner);
     if (miners < this._roomSources.length) return false;
 
@@ -121,11 +89,7 @@ export class HarvestHaulerMilestone extends Milestone {
     return true;
   }
 
-  init(): void {
-    taskDistributor.addTask(new HarvestTask());
-  }
-
-  run(...args: any[]) {
+  run() {
     if (spawner.spawning) return;
 
     const availableEnergy = gameState.homeSpawn.room.energyCapacityAvailable;
@@ -159,6 +123,27 @@ export class HarvestHaulerMilestone extends Milestone {
     if (this._roomSources.length > miners) {
       Logger.info("I have unallocated sources available for mining.");
       return this.spawnMiner(availableEnergy);
+    }
+  }
+
+  update() {
+    super.update();
+
+    this.initMinerAllocations();
+    this.initHaulerAllocations();
+
+    const miners = gameState.getCreepCount(CreepTypes.miner);
+    const haulers = gameState.getCreepCount(CreepTypes.miner);
+
+    if (miners === 1 && haulers === 0) {
+      const miner = gameState.creeps[CreepTypes.miner].creeps[0];
+      const memory = miner.memory as MinerMemory;
+
+      taskDistributor.removeCreepTasks(task => task instanceof HarvestTask);
+      taskDistributor.addTask(new HaulerTask({
+        target: gameState.sources[memory.target].pos,
+        destination: gameState.homeSpawn
+      }));
     }
   }
 }

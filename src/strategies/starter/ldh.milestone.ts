@@ -1,12 +1,10 @@
 import { CreepTypes } from "abstractions/creep-types";
-import { EventTypes } from "abstractions/event-types";
 import { Milestone } from "classes/milestone";
-import { isLDHMemory } from "creeps/long-distance-harvester";
-import { eventBus } from "singletons/event-bus";
+import { isLDHMemory } from "creeps/ldh";
 import { gameState } from "singletons/game-state";
 import { spawner } from "singletons/spawner";
 
-export class LongDistanceHarvestingMilestone extends Milestone {
+export class LdhMilestone extends Milestone {
 
   private readonly _ldhsPerSource = 3;
 
@@ -16,42 +14,7 @@ export class LongDistanceHarvestingMilestone extends Milestone {
   // SourceId => Set(CreepId)
   private _sourceCreepAllocationMap: { [sourceName: string]: Set<string> } = {};
 
-  private onCreepSpawn = (name: string) => {
-    const creep = Game.creeps[name];
-
-    if (isLDHMemory(creep.memory)) {
-      const source = new Source(creep.memory.target);
-
-      this._creepSourceAllocationMap[name] = source.id;
-      this._sourceCreepAllocationMap[source.id] ??= new Set();
-      this._sourceCreepAllocationMap[source.id].add(name);
-    }
-  };
-
-  private onCreepDeath = (memory: CreepMemory & { name: string }) => {
-    if (!isLDHMemory(memory)) return;
-    delete this._creepSourceAllocationMap[memory.name];
-    this._sourceCreepAllocationMap[memory.target]?.delete(memory.name);
-
-    if (!this._sourceCreepAllocationMap[memory.target]?.size) {
-      delete this._sourceCreepAllocationMap[memory.target];
-    }
-  };
-
   private _adjacentSources: Source[] = [];
-
-  constructor() {
-    super();
-
-    // Set viable adjacent sources.
-    this.initAdjacentSources();
-
-    // Allocate existing LDHs to the respective sources.
-    this.initLDHarvesterAllocations();
-
-    eventBus.on(EventTypes.creepDied, this.onCreepDeath.bind(this));
-    eventBus.on(EventTypes.creepSpawned, this.onCreepSpawn.bind(this));
-  }
 
   private initAdjacentSources() {
     this._adjacentSources = [];
@@ -74,7 +37,7 @@ export class LongDistanceHarvestingMilestone extends Milestone {
   }
 
   private initLDHarvesterAllocations() {
-    const { refs: ldhs } = gameState.creeps[CreepTypes.ldh] ?? {};
+    const { creeps: ldhs } = gameState.creeps[CreepTypes.ldh] ?? {};
     ldhs?.forEach(x => {
       if (!isLDHMemory(x.memory)) return;
       const { target } = x.memory;
@@ -103,6 +66,18 @@ export class LongDistanceHarvestingMilestone extends Milestone {
     return true;
   }
 
+  init() {
+    super.init();
+
+    // Todo: This is wrong as an init.. as the scouting needs to happen first.
+
+    // Set viable adjacent sources.
+    this.initAdjacentSources();
+
+    // Allocate existing LDHs to the respective sources.
+    this.initLDHarvesterAllocations();
+  }
+
   run(...args: any[]): void {
     if (spawner.spawning) return;
 
@@ -112,5 +87,9 @@ export class LongDistanceHarvestingMilestone extends Milestone {
     if ((this._adjacentSources.length * this._ldhsPerSource) > ldHarvesters) {
       return this.spawnHarvester(availableEnergy);
     }
+  }
+
+  update() {
+    super.update();
   }
 }

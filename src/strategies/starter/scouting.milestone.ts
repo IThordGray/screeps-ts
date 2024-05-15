@@ -6,7 +6,7 @@ import { gameState } from "singletons/game-state";
 import { spawner } from "singletons/spawner";
 import { taskDistributor } from "singletons/task-distributor";
 
-export class InitialScoutingMilestone extends Milestone {
+export class ScoutingMilestone extends Milestone {
 
   private _roomIds: string[] = [];
 

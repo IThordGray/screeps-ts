@@ -1,14 +1,14 @@
 import { CreepTypes } from "abstractions/creep-types";
 import { CreepTask, StratTask, Task } from "classes/task";
 import { isDroneMemory } from "creeps/drone";
+import { OnInit, OnRun, OnUpdate } from "../abstractions/interfaces";
 import { gameState } from "./game-state";
 
 /**
  * Distribute high priority tasks amongst creeps.
  * Keep references to which creeps are currently doing which tasks.
  */
-class TaskDistributor {
-
+class TaskDistributor implements OnUpdate, OnRun {
   private _stratTasks: StratTask[] = [];
   private _stratTaskMap: { [taskId: string]: StratTask } = {};
 
@@ -76,7 +76,7 @@ class TaskDistributor {
 
   run(...args: any[]) {
     // This is wrong. Need to look ask for all taskable drones instead.
-    const drones = gameState.creeps[CreepTypes.drone]?.refs;
+    const drones = gameState.creeps[CreepTypes.drone]?.creeps;
     if (!drones?.length) return;
 
     drones.forEach(drone => {
@@ -87,9 +87,46 @@ class TaskDistributor {
   }
 
   update(...args: any[]) {
+
+    const tempCreepAllocations: { [creepName: string]: string } = {};
+    const tempTaskAllocations: { [taskId: string]: string[] } = {};
+
+    // Copy over active allocations
+    this._creepTasks.forEach(task => {
+      const existingCreepNames = this._taskCreepAllocationMap[task.id];
+      // No creep allocations due to new task => no clean up needed.
+      if (!existingCreepNames) return;
+
+      const activeCreepNames: string[] = [];
+
+      existingCreepNames.forEach(creepName => {
+        const creep = Game.creeps[creepName];
+        // Check whether creep still exists
+        if (!creep) return;
+
+        // Creep still exists
+        activeCreepNames.push(creepName);
+        tempCreepAllocations[creepName] = task.id;
+        delete this._creepTaskAllocationMap[creepName];
+      });
+
+      tempTaskAllocations[task.id] = activeCreepNames;
+      delete this._taskCreepAllocationMap[task.id];
+    });
+
+    // Clear whatever was left behind
+    Object.values(this._taskCreepAllocationMap).forEach(creepNames => {
+      creepNames.forEach(creepName => {
+        const creep = Game.creeps[creepName];
+        if (!creep || !isDroneMemory(creep.memory)) return;
+
+        delete creep.memory.taskId;
+      });
+    });
+
     const viableCreeps: Creep[] = [];
-    this._creepTaskAllocationMap = {};
-    this._taskCreepAllocationMap = {};
+    this._creepTaskAllocationMap = { ...tempCreepAllocations };
+    this._taskCreepAllocationMap = { ...tempTaskAllocations };
 
     _.forEach(Game.creeps, creep => {
       if (!isDroneMemory(creep.memory)) return;
@@ -98,10 +135,6 @@ class TaskDistributor {
         viableCreeps.push(creep);
         return;
       }
-
-      this._creepTaskAllocationMap[creep.name] = creep.memory.taskId;
-      this._taskCreepAllocationMap[creep.memory.taskId] ??= [];
-      this._taskCreepAllocationMap[creep.memory.taskId].push(creep.name);
     });
 
     if (!viableCreeps.length) return;

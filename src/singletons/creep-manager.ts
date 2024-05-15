@@ -2,11 +2,12 @@ import { CreepType, CreepTypes } from "abstractions/creep-types";
 import { BaseCreep } from "classes/base-creep";
 import { droneCreep } from "creeps/drone";
 import { haulerCreep } from "creeps/hauler";
-import { ldHarvesterCreep } from "creeps/long-distance-harvester";
+import { ldHarvesterCreep } from "creeps/ldh";
 import { minerCreep } from "creeps/miner";
 import { scoutCreep } from "creeps/scout";
+import { OnInit, OnRun } from "../abstractions/interfaces";
 
-class CreepManager {
+class CreepManager implements OnRun {
 
   readonly creepTypeMap = new Map<CreepType, BaseCreep>([
     [ CreepTypes.miner, minerCreep ],

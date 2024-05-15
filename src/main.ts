@@ -1,11 +1,13 @@
 import { EventTypes } from "abstractions/event-types";
 import { Logger } from "helpers/logger";
-import { delegator } from "singletons/delegator.class";
 import { eventBus } from "singletons/event-bus";
 import { gameState } from "singletons/game-state";
 import { spawner } from "singletons/spawner";
 import { taskDistributor } from "singletons/task-distributor";
 import { ErrorMapper } from "utils/ErrorMapper";
+import { memoryManager } from "./managers/memory.manager";
+import { creepManager } from "./singletons/creep-manager";
+import { strategyManager } from "./singletons/strat-manager";
 
 declare global {
   /*
@@ -30,6 +32,7 @@ declare global {
   interface CreepMemory {
     role: string;
     working: boolean;
+    state?: string;
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")
@@ -40,32 +43,28 @@ declare global {
   }
 }
 
+export const update = () => {
+  spawner.update();
+  strategyManager.update();
+  taskDistributor.update();
+};
+
+export const run = () => {
+  spawner.run();
+  strategyManager.run();
+  taskDistributor.run();
+  creepManager.run();
+};
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   Logger.log(`Current game tick is ${ Game.time }`);
 
-  gameState.update();
-  spawner.update();
-  delegator.update();
+  gameState.run();
 
-  // Figure out which creeps should which tasks.
-  taskDistributor.update();
+  update();
+  run();
 
-  // Distribute high priority tasks before delegating general work.
-  taskDistributor.run();
-
-  // Delegate general tasks.
-  delegator.run();
-
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      const creep = Memory.creeps[name];
-      eventBus.emit(EventTypes.creepDied, { ...creep, name });
-
-      delete Memory.creeps[name];
-    }
-  }
+  memoryManager.run();
 });

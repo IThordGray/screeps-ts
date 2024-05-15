@@ -1,15 +1,19 @@
 import { CreepTask } from "classes/task";
-import { CheckWorking } from "units-of-work/check-state";
 import { Deliver } from "units-of-work/deliver";
 import { Harvest } from "units-of-work/harvest";
+import { CheckState } from "../units-of-work/check-state";
 
 export class HarvestTask extends CreepTask {
 
-  private readonly _checkWorking = new CheckWorking({
-    isWorkingAnd: (creep: Creep) => creep.store[RESOURCE_ENERGY] === 0,
-    workingAction: (creep: Creep) => Deliver.action(creep),
-    isNotWorkingAnd: (creep: Creep) => creep.store.getFreeCapacity() === 0,
-    notWorkingAction: (creep: Creep) => Harvest.action(creep)
+  private readonly _checkState = new CheckState({
+    [Deliver.state]: {
+      condition: creep => creep.memory.state === Harvest.state && creep.store.getFreeCapacity() === 0,
+      action: creep => Deliver.action(creep)
+    },
+    [Harvest.state]: {
+      condition: creep => creep.memory.state === Deliver.state && creep.store.getUsedCapacity() === 0,
+      action: creep => Harvest.action(creep)
+    }
   });
 
   private readonly _harvest = new Harvest({
@@ -32,10 +36,10 @@ export class HarvestTask extends CreepTask {
   });
 
   run(creep: Creep) {
-    this._checkWorking.run(creep);
+    creep.memory.state ??= Harvest.state;
+    this._checkState.check(creep);
 
-    creep.memory.working
-      ? this._deliver.run(creep)
-      : this._harvest.run(creep);
+    if (creep.memory.state === Deliver.state) this._deliver.run(creep);
+    if (creep.memory.state === Harvest.state) this._harvest.run(creep);
   }
 }

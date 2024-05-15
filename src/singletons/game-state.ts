@@ -1,4 +1,8 @@
 import { CreepType } from "abstractions/creep-types";
+import { EventTypes } from "abstractions/event-types";
+import { Logger } from "helpers/logger";
+import { OnRun } from "../abstractions/interfaces";
+import { eventBus } from "./event-bus";
 
 export class ScoutedRoomState {
   controllerIds: string[] = [];
@@ -7,15 +11,19 @@ export class ScoutedRoomState {
 
 export class CreepState {
   // References to all the creeps of the role.
-  refs: Creep[] = [];
+  creeps: Creep[] = [];
 
   // Number of creeps
   get count() {
-    return this.refs.length;
+    return this.creeps.length;
   }
 }
 
-class GameState {
+class GameState implements OnRun {
+
+  private readonly _onCreepSpawn = (creep: Creep) => Logger.success(`Creep spawned: ${ creep.name }`);
+  private readonly _onCreepDeath = (creep: Creep) => Logger.warn(`Creep died: ${ creep.name }`);
+
   creeps: { [creepName: string]: CreepState } = {};
 
   get homeSpawn() {
@@ -38,19 +46,26 @@ class GameState {
     Memory.sources ??= {};
     Memory.controllers ??= {};
     Memory.scoutedRooms ??= {};
+
+    eventBus.on(EventTypes.creepSpawned, this._onCreepSpawn.bind(this));
+    eventBus.on(EventTypes.creepDied, this._onCreepDeath.bind(this));
   }
 
   getCreepCount(role: CreepType) {
     return this.creeps[role]?.count ?? 0;
   }
 
-  update() {
+  getCreepState(role: CreepType) {
+    return this.creeps[role] ?? new CreepState();
+  }
+
+  run() {
     this.creeps = {};
 
     _.forEach(Game.creeps, creep => {
       const creepRole = creep.memory.role;
       this.creeps[creepRole] ??= new CreepState();
-      this.creeps[creepRole].refs.push(creep);
+      this.creeps[creepRole].creeps.push(creep);
     });
   }
 

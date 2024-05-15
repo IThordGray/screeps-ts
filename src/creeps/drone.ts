@@ -1,8 +1,9 @@
 import { CreepTypes } from "abstractions/creep-types";
 import { BaseCreep } from "classes/base-creep";
 import { taskDistributor } from "singletons/task-distributor";
-import { CheckWorking } from "units-of-work/check-state";
 import { Withdraw } from "units-of-work/withdraw";
+import { CheckState } from "../units-of-work/check-state";
+import { Work } from "../units-of-work/work";
 
 export function isDroneMemory(memory: CreepMemory): memory is DroneMemory {
   return memory.role === CreepTypes.drone;
@@ -14,9 +15,15 @@ export interface DroneMemory extends CreepMemory {
 }
 
 class DroneCreep extends BaseCreep {
-  private readonly _checkWorking = new CheckWorking({
-    isWorkingAnd: (creep: Creep) => creep.store[RESOURCE_ENERGY] === 0,
-    isNotWorkingAnd: (creep: Creep) => creep.store.getFreeCapacity() === 0
+  private readonly _checkState = new CheckState({
+    [Withdraw.state]: {
+      condition: creep => creep.memory.state === Work.state && creep.store.getFreeCapacity() === 0,
+      action: creep => Withdraw.action(creep)
+    },
+    [Work.state]: {
+      condition: creep => creep.memory.state === Withdraw.state && creep.store.getUsedCapacity() === 0,
+      action: creep => Work.action(creep)
+    }
   });
 
   private readonly _withdraw = new Withdraw({
@@ -83,11 +90,11 @@ class DroneCreep extends BaseCreep {
     const currentTask = this.getCreepTask(creep);
     if (currentTask) return currentTask.run(creep);
 
-    this._checkWorking.run(creep);
+    creep.memory.state ??= Work.state;
+    this._checkState.check(creep);
 
-    creep.memory.working
-      ? this.doWork(creep)
-      : this._withdraw.run(creep);
+    if (creep.memory.state === Withdraw.state) this._withdraw.run(creep);
+    if (creep.memory.state === Work.state) this.doWork(creep);
   }
 
 }

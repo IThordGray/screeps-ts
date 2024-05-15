@@ -1,35 +1,23 @@
-export class CheckWorking {
+type StateCheck = {
+  condition: (creep: Creep) => boolean,
+  action: (creep: Creep) => void
+}
 
-  private readonly _isNotWorking: (creep: Creep) => boolean;
-  private readonly _isWorking: (creep: Creep) => boolean;
-  private readonly _notWorkingAction?: (creep: Creep) => void;
-  private readonly _workingAction?: (creep: Creep) => void;
+export class CheckState {
 
-  constructor(args: {
-    isWorkingAnd: (creep: Creep) => boolean,
-    isNotWorkingAnd: (creep: Creep) => boolean,
-    workingAction?: (creep: Creep) => void,
-    notWorkingAction?: (creep: Creep) => void
-  }) {
+  constructor(
+    private stateChecks: { [key: string]: StateCheck }
+  ) { }
 
-    this._isNotWorking = args.isNotWorkingAnd;
-    this._isWorking = args.isWorkingAnd;
+  check(creep: Creep): void {
+    for (const state in this.stateChecks) {
+      const { condition, action } = this.stateChecks[state];
 
-    this._notWorkingAction = args.notWorkingAction;
-    this._workingAction = args.workingAction;
-  }
-
-  run(creep: Creep) {
-    if (creep.memory.working && this._isWorking(creep)) {
-      creep.memory.working = false;
-      this._notWorkingAction?.(creep);
-      return;
-    }
-
-    if (!creep.memory.working && this._isNotWorking(creep)) {
-      creep.memory.working = true;
-      this._workingAction?.(creep);
-      return;
+      if (condition(creep)) {
+        creep.memory.state = state;
+        action(creep);
+        break;
+      }
     }
   }
 }

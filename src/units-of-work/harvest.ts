@@ -1,4 +1,5 @@
 export class Harvest {
+  static state = 'harvesting';
   static action = (creep: Creep) => creep.say("⛏️ harvesting");
 
   private readonly _getTarget: (creep: Creep) => Source | null;
