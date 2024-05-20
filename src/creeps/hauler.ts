@@ -1,17 +1,16 @@
 import { CreepTypes } from "abstractions/creep-types";
 import { BaseCreep } from "classes/base-creep";
-import { gameState } from "singletons/game-state";
-import { Collect } from "units-of-work/collect";
-import { Deliver } from "units-of-work/deliver";
+import { Collect, IMemoryCanCollect } from "units-of-work/collect";
+import { Deliver, IMemoryCanDeliver } from "units-of-work/deliver";
 import { CheckState } from "../units-of-work/check-state";
 
 export function isHaulerMemory(memory: CreepMemory): memory is HaulerMemory {
   return memory.role === CreepTypes.hauler;
 }
 
-export interface HaulerMemory extends CreepMemory {
+export interface HaulerMemory extends CreepMemory, IMemoryCanCollect, IMemoryCanDeliver {
   role: "hauler";
-  target: Id<Source>;
+  sourceId: Id<Source>;
 }
 
 class HaulerCreep extends BaseCreep {
@@ -28,33 +27,30 @@ class HaulerCreep extends BaseCreep {
   });
 
   private readonly _deliver = new Deliver({
-    getTarget: (creep: Creep) => {
-      let targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return (structure.structureType == STRUCTURE_EXTENSION ||
-              structure.structureType == STRUCTURE_SPAWN ||
-              structure.structureType == STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-        }
-      });
-
-      return targets[0];
-    }
+    getPosition: (creep: Creep) => {
+      const { x, y, roomName } = (creep.memory as HaulerMemory).dropOffPos;
+      return new RoomPosition(x, y, roomName);
+    },
+    getTarget: creep => Deliver.defaultTarget(creep)
   });
 
   private readonly _collect = new Collect({
-    getTarget: (creep: Creep) => {
-      if (!isHaulerMemory(creep.memory)) return null;
-
-      const source = new Source(gameState.sources[creep.memory.target].id);
-      if (!source) return null;
-
-      return source.pos;
+    getPosition: (creep: Creep) => {
+      const { x, y, roomName } = (creep.memory as HaulerMemory).collectPos;
+      return new RoomPosition(x, y, roomName);
     }
   });
 
   override readonly role = CreepTypes.hauler;
   override readonly bodyParts = [ CARRY, MOVE ];
+
+  need(budget: number, memory: Partial<HaulerMemory>) {
+    return {
+      creepType: CreepTypes.hauler,
+      budget,
+      memory
+    };
+  }
 
   run(creep: Creep) {
     creep.memory.state ??= Collect.state;

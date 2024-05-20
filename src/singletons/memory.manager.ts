@@ -1,8 +1,7 @@
 import { EventTypes } from "../abstractions/event-types";
-import { OnRun } from "../abstractions/interfaces";
-import { eventBus } from "../singletons/event-bus";
+import { eventBus } from "./event-bus";
 
-class MemoryManager implements OnRun {
+class MemoryManager {
   run(): void {
     for (const name in Memory.creeps) {
       if (name in Game.creeps) continue;

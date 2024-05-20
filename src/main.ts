@@ -1,13 +1,10 @@
-import { EventTypes } from "abstractions/event-types";
 import { Logger } from "helpers/logger";
-import { eventBus } from "singletons/event-bus";
 import { gameState } from "singletons/game-state";
-import { spawner } from "singletons/spawner";
-import { taskDistributor } from "singletons/task-distributor";
 import { ErrorMapper } from "utils/ErrorMapper";
-import { memoryManager } from "./managers/memory.manager";
-import { creepManager } from "./singletons/creep-manager";
-import { strategyManager } from "./singletons/strat-manager";
+import { CreepTypes } from "./abstractions/creep-types";
+import { harvesterCreep } from "./creeps/harvester";
+import { memoryManager } from "./singletons/memory.manager";
+import { roomManager } from "./singletons/room.manager";
 
 declare global {
   /*
@@ -24,18 +21,27 @@ declare global {
     uuid: number;
     log: any;
 
-    sources: { [sourceId: string]: Source };
-    controllers: { [controllerName: string]: StructureController };
-    scoutedRooms: { [roomName: string]: { controllerIds: string[]; sourceIds: string[] } };
+    sources: { [sourceId: string]: RoomPosition };
+    controllers: { [controllerId: string]: RoomPosition };
+    scoutedRooms: { [roomName: string]: { controllerId?: Id<StructureController>; sourceIds: Id<Source>[] } };
   }
 
   interface CreepMemory {
+    room: string;
     role: string;
-    working: boolean;
     state?: string;
   }
 
-  // Syntax for adding proprties to `global` (ex "global.log")
+  interface RoomMemory {
+    name: string;
+    controllerId?: string;
+    sourceIds: string[];
+    creepNames: string[];
+    creepTypes: { [creepType: string]: string[] };
+    spawningCreep?: string;
+  }
+
+  // Syntax for adding properties to `global` (ex "global.log")
   namespace NodeJS {
     interface Global {
       log: any;
@@ -43,28 +49,15 @@ declare global {
   }
 }
 
-export const update = () => {
-  spawner.update();
-  strategyManager.update();
-  taskDistributor.update();
-};
-
-export const run = () => {
-  spawner.run();
-  strategyManager.run();
-  taskDistributor.run();
-  creepManager.run();
-};
-
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  Logger.log(`Current game tick is ${ Game.time }`);
+  gameState.update();
 
-  gameState.run();
-
-  update();
-  run();
+  _.forEach(Game.rooms, room => {
+    if (!room.controller?.my) return;
+    roomManager.run(room);
+  });
 
   memoryManager.run();
 });

@@ -1,30 +1,30 @@
 import { CreepTypes } from "abstractions/creep-types";
 import { BaseCreep } from "classes/base-creep";
-import { gameState } from "singletons/game-state";
-import { Harvest } from "units-of-work/harvest";
+import { Harvest, IMemoryCanHarvest } from "units-of-work/harvest";
 
 export function isMinerMemory(memory: CreepMemory): memory is MinerMemory {
   return memory.role === CreepTypes.miner;
 }
 
-export interface MinerMemory extends CreepMemory {
+export interface MinerMemory extends CreepMemory, IMemoryCanHarvest {
   role: "miner";
-  target: Id<Source>;
 }
 
 class MinerCreep extends BaseCreep {
   private readonly _harvest = new Harvest({
-    getTarget: (creep: Creep) => {
-      if (!isMinerMemory(creep.memory)) return null;
-      return new Source(gameState.sources[creep.memory.target].id);
-    }
+    getPosition: (creep: Creep) => (creep.memory as MinerMemory).pos,
+    getTarget: (creep: Creep) => new Source((creep.memory as MinerMemory).sourceId)
   });
 
   override readonly role = CreepTypes.miner;
   override readonly bodyParts = [ WORK, WORK, MOVE ];
 
+  need(budget: number, memory: Partial<MinerMemory>) {
+    return { creepType: CreepTypes.miner, budget, memory };
+  }
+
   run(creep: Creep) {
-    if (!isMinerMemory(creep.memory)) return;
+    if (!creep) return;
     this._harvest.run(creep);
   }
 

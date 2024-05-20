@@ -1,15 +1,33 @@
+export interface IMemoryCanPickup {
+
+}
+
+type PickupArgs = {
+  getPosition: (creep: Creep) => RoomPosition | undefined,
+  getTarget: (creep: Creep) => Resource | undefined;
+};
+
 export class Pickup {
-  static action = (creep: Creep) => creep.say("🧲 collecting");
+  static state = "pickingUp";
+  static action = (creep: Creep) => creep.say("🧲 picking up");
 
-  private readonly _getTarget: (creep: Creep) => Resource | null;
+  private readonly _getPosition: PickupArgs["getPosition"];
+  private readonly _getTarget: PickupArgs["getTarget"];
 
-  constructor(args: {
-    getTarget: (creep: Creep) => Resource | null;
-  }) {
+  constructor(args: PickupArgs) {
+    this._getPosition = args.getPosition;
     this._getTarget = args.getTarget;
   }
 
   run(creep: Creep) {
+    const pos = this._getPosition(creep);
+    if (!pos) return;
+
+    if (creep.room.name !== pos.roomName) {
+      creep.moveTo(pos);
+      return;
+    }
+
     const target = this._getTarget(creep);
     if (!target) return;
 

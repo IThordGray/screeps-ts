@@ -1,3 +1,7 @@
+export interface IMemoryCanGoTo {
+
+}
+
 export class GoTo {
 
   private readonly _getTarget: (creep: Creep) => RoomPosition | null;

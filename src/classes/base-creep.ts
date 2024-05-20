@@ -14,7 +14,7 @@ export abstract class BaseCreep {
     let currentCost = this.minCost;
 
     let index = 0;
-    while ((currentCost + BODYPART_COST[this.bodyParts[index % this.bodyParts.length]]) < budget) {
+    while ((currentCost + BODYPART_COST[this.bodyParts[index % this.bodyParts.length]]) <= budget) {
       body.push(this.bodyParts[index % this.bodyParts.length]);
       currentCost += BODYPART_COST[this.bodyParts[index % this.bodyParts.length]];
       index++;

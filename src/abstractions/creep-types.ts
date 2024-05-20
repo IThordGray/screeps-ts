@@ -3,7 +3,8 @@ export const CreepTypes = {
   hauler: "hauler",
   scout: "scout",
   ldh: "ldh",
-  drone: "drone"
+  genericDrone: "drone",
+  harvester: "harvester"
 };
 
 export type CreepType = typeof CreepTypes[keyof typeof CreepTypes];

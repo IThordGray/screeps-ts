@@ -1,12 +1,12 @@
-import { Milestone } from "classes/milestone";
-import { taskDistributor } from "singletons/task-distributor";
-import { OnDispose, OnInit, OnRun, OnUpdate } from "../abstractions/interfaces";
-import { StratTask } from "./task";
+import { Task } from "tasking/task";
+import { IStrat } from "../abstractions/interfaces";
+import { Milestone } from "../strategies/progressive/milestones/milestone";
 
-export abstract class Strat implements OnInit, OnUpdate, OnRun, OnDispose {
+// import { StratTask } from "../tasking/task";
+
+export abstract class Strat implements IStrat {
   protected _milestones: Milestone[] = [];
   protected _currentMilestone: Milestone | undefined;
-  protected _strategyTask: StratTask | undefined;
 
   private getCurrentMilestone(): Milestone | undefined {
     for (const milestone of this._milestones) {
@@ -18,31 +18,31 @@ export abstract class Strat implements OnInit, OnUpdate, OnRun, OnDispose {
   dispose() {
   }
 
-  init() {
-    this._milestones.forEach(x => x.init());
-  }
+  abstract getCreepRequirements(): {
+    creepType: string;
+    budget: number;
+    properties?: Record<string, any> | undefined;
+  }[];
 
-  run() {
-    // Execute priority task.
-    if (this._strategyTask) return this._strategyTask.run();
+  // protected _strategyTask: StratTask | undefined;
 
-    // Revert to executing milestones.
-    return this._currentMilestone?.run();
-  }
+  abstract getTaskRequirements(): Task[];
+
+  abstract isDone(): boolean;
 
   update() {
     // Check for priority tasks.
-    this._strategyTask = taskDistributor.getStratTask();
-    if (this._strategyTask) return;
+    // this._strategyTask = taskDistributor.getStratTask();
+    // if (this._strategyTask) return;
 
     // Revert to checking milestones.
     const oldMilestone = this._currentMilestone;
     const newMilestone = this._milestones.find(x => !x.condition());
 
-    if (oldMilestone !== newMilestone) {
-      oldMilestone?.dispose();
-      newMilestone?.init();
-    }
+    // if (oldMilestone !== newMilestone) {
+    //   oldMilestone?.dispose();
+    //   newMilestone?.init();
+    // }
 
     this._currentMilestone = newMilestone;
     this._currentMilestone?.update();
