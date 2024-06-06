@@ -9,3 +9,8 @@ Something I still wanted to do was serialise the memory. The idea here is to des
 
 Then I need to start looking at automatic building. Ideally get to RCL2 in order to build spawns and roads.
 For roads, still need to look into path caching.
+
+
+
+Strategies
+![alt text](image.png)
