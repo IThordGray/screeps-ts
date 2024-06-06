@@ -1,43 +1,32 @@
-import { CreepTypes } from "abstractions/creep-types";
-import { BaseCreep } from "classes/base-creep";
-import { Collect, IMemoryCanCollect } from "units-of-work/collect";
-import { Deliver, IMemoryCanDeliver } from "units-of-work/deliver";
+import { CreepTypes } from "../abstractions/creep-types";
+import { BaseCreep } from "../classes/base-creep";
+import { COLLECT_STATE, collectStateSwitchAction } from "../helpers/creeps/creep-try-collect.extensions";
+import { DELIVER_STATE, deliverStateSwitchAction } from "../helpers/creeps/creep-try-deliver.extensions";
 import { CheckState } from "../units-of-work/check-state";
 
 export function isHaulerMemory(memory: CreepMemory): memory is HaulerMemory {
   return memory.role === CreepTypes.hauler;
 }
 
-export interface HaulerMemory extends CreepMemory, IMemoryCanCollect, IMemoryCanDeliver {
+export interface HaulerMemory extends CreepMemory {
   role: "hauler";
   sourceId: Id<Source>;
+  collectPos?: RoomPosition;
+  dropOffPos?: RoomPosition;
 }
+
+export type Hauler = Creep & { memory: HaulerMemory };
 
 class HaulerCreep extends BaseCreep {
 
   private readonly _checkState = new CheckState({
-    [Deliver.state]: {
-      condition: creep => creep.memory.state === Collect.state && creep.store.getFreeCapacity() === 0,
-      action: creep => Deliver.action(creep)
+    [DELIVER_STATE]: {
+      condition: creep => creep.isCollecting && creep.store.getFreeCapacity() === 0,
+      action: creep => deliverStateSwitchAction(creep)
     },
-    [Collect.state]: {
-      condition: creep => creep.memory.state === Deliver.state && creep.store.getUsedCapacity() === 0,
-      action: creep => Collect.action(creep)
-    }
-  });
-
-  private readonly _deliver = new Deliver({
-    getPosition: (creep: Creep) => {
-      const { x, y, roomName } = (creep.memory as HaulerMemory).dropOffPos;
-      return new RoomPosition(x, y, roomName);
-    },
-    getTarget: creep => Deliver.defaultTarget(creep)
-  });
-
-  private readonly _collect = new Collect({
-    getPosition: (creep: Creep) => {
-      const { x, y, roomName } = (creep.memory as HaulerMemory).collectPos;
-      return new RoomPosition(x, y, roomName);
+    [COLLECT_STATE]: {
+      condition: creep => creep.isDelivering && creep.store.getUsedCapacity() === 0,
+      action: creep => collectStateSwitchAction(creep)
     }
   });
 
@@ -52,12 +41,19 @@ class HaulerCreep extends BaseCreep {
     };
   }
 
-  run(creep: Creep) {
-    creep.memory.state ??= Collect.state;
+  run(creep: Hauler) {
+    creep.memory.state ??= COLLECT_STATE;
     this._checkState.check(creep);
 
-    if (creep.memory.state === Deliver.state) this._deliver.run(creep);
-    if (creep.memory.state === Collect.state) this._collect.run(creep);
+    if (creep.isDelivering) {
+      const dropOffPos = creep.memory.dropOffPos;
+      creep.tryDeliver({ pos: dropOffPos });
+    }
+
+    if (creep.isCollecting) {
+      const collectPos = creep.memory.collectPos;
+      creep.tryCollect({ pos: collectPos });
+    }
   }
 }
 

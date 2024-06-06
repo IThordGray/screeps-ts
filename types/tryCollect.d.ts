@@ -1,0 +1,1 @@
+type TryCollectOptions = TryWithdrawOptions & TryPickupOptions & { scavengeRange?: number };

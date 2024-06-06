@@ -1,5 +1,5 @@
-import { TaskType } from "tasking/taskType";
-import { DroneMemory } from "../../creeps/drone";
+import { TaskType } from "../taskType";
+import { DroneMemory } from "../../creeps/generic-drone";
 import { IMemoryCanScout, Scout } from "../../units-of-work/scout";
 import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";

@@ -1,8 +1,9 @@
 export enum TaskType {
-  defend,
-  harvest,
-  haul,
-  build,
-  repair,
-  scout
+  defend = "defend",
+  harvest = "harvest",
+  haul = "haul",
+  build = "build",
+  repair = "repair",
+  scout = "scout",
+  upgrade = "upgrade"
 }

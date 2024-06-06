@@ -1,5 +1,5 @@
 import { ScoutMemory } from "../creeps/scout";
-import { ScoutedRoomState } from "../singletons/game-state";
+import { ScoutedRoomState } from "../singletons/gameState";
 
 export interface IMemoryCanScout {
   pos: RoomPosition;

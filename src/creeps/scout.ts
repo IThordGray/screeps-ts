@@ -1,5 +1,5 @@
-import { CreepTypes } from "abstractions/creep-types";
-import { BaseCreep } from "classes/base-creep";
+import { CreepTypes } from "../abstractions/creep-types";
+import { BaseCreep } from "../classes/base-creep";
 import { Scout } from "../units-of-work/scout";
 
 export function isScoutMemory(memory: CreepMemory): memory is ScoutMemory {

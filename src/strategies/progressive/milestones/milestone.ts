@@ -1,24 +1,22 @@
-import { ICreepRequirements } from "../../../abstractions/interfaces";
-import { gameState, RoomState } from "../../../singletons/game-state";
 import { Task } from "../../../tasking/task";
-import { TaskAllocator } from "../../../tasking/taskAllocator";
-import { IMilestone } from "../milestone.interface";
+import { StratConfig } from "../progressive.strat";
 
-export abstract class Milestone implements IMilestone {
-  protected _roomName: string;
-  protected _taskAllocator: TaskAllocator;
+export abstract class Milestone {
 
-  constructor(roomName: string, taskAllocator: TaskAllocator) {
-    this._roomName = roomName;
+  protected _taskRequirements: Task[] = [];
+  protected _creepRequirement?: ICreepRequirement;
+
+  protected _room: Room;
+  protected _taskAllocator: ITaskAllocator;
+  protected _stratConfig: StratConfig;
+
+  constructor(room: Room, taskAllocator: ITaskAllocator, config: StratConfig) {
+    this._room = room;
     this._taskAllocator = taskAllocator;
+    this._stratConfig = config;
+
+    this.init();
   }
 
-  abstract condition(): boolean;
-
-  abstract getCreepRequirements(): ICreepRequirements[];
-
-  abstract getTaskRequirements(): Task[];
-
-  abstract update(): void;
-
+  abstract init(): void
 }

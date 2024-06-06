@@ -1,5 +1,3 @@
-import * as crypto from "crypto";
-
 export function generateUID(): string {
     // Timestamp (4 bytes)
     const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, '0');

@@ -1,8 +1,6 @@
-import { DroneMemory } from "../creeps/drone";
-import { RoomState } from "../singletons/game-state";
-import { StratManager } from "../singletons/strat-manager";
+import { DroneMemory } from "../creeps/generic-drone";
+import { RoomState } from "../states/roomState";
 import { Task } from "./task";
-import { TaskAllocator } from "./taskAllocator";
 import { TaskPriority } from "./taskPriority";
 import { TaskType } from "./taskType";
 
@@ -19,8 +17,10 @@ export class TaskDistributor {
     [TaskType.harvest]: 6,
     [TaskType.haul]: 5,
     [TaskType.repair]: 4,
+    [TaskType.upgrade]: 3,
     [TaskType.build]: 2,
-    [TaskType.scout]: 1
+    [TaskType.scout]: 1,
+
   };
   private taskCompareFn = (a: Task, b: Task) => {
     const aCost = this._priorityCostsMap[a.priority] + this._taskPriorityCostMap[a.type];
@@ -28,12 +28,13 @@ export class TaskDistributor {
     return bCost - aCost;
   };
 
-  private readonly _roomState = RoomState.get(this._room.name);
+  private readonly _roomState = this._room.owned.state;
+
+  private get taskAllocator() { return this._room.owned.taskAllocator; }
+  private get stratManager() { return this._room.owned.stratManager; }
 
   constructor(
-    private readonly _room: Room,
-    private readonly _taskAllocator: TaskAllocator,
-    private readonly _stratManager: StratManager
+    private readonly _room: Room
   ) {
   }
 
@@ -101,9 +102,9 @@ export class TaskDistributor {
   }
 
   run() {
-    const tasks = this._stratManager.getCurrentStrat().getTaskRequirements().sort(this.taskCompareFn);
-    const unallocatedDrones = this._taskAllocator.getUnallocatedDrones();
-    const allocatedDrones = this._taskAllocator.getAllocatedDrones();
+    const tasks = this.stratManager.getCurrentStrat().taskNeeds.sort(this.taskCompareFn);
+    const unallocatedDrones = this.taskAllocator.getUnallocatedDrones();
+    const allocatedDrones = this.taskAllocator.getAllocatedDrones();
 
     const canReassign = tasks.length > unallocatedDrones.length;
     const drones = canReassign ? [ ...allocatedDrones, ...unallocatedDrones ] : unallocatedDrones;

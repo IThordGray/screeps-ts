@@ -1,0 +1,3 @@
+interface ICreepManager {
+  run(): void;
+}

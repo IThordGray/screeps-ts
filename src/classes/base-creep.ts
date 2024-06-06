@@ -1,7 +1,6 @@
-import { generateUID } from "helpers/generate-uid";
+import { generateUID } from "../helpers/generate-uid";
 
 export abstract class BaseCreep {
-  idx = 0;
   abstract role: string;
   abstract bodyParts: BodyPartConstant[];
 
@@ -24,7 +23,7 @@ export abstract class BaseCreep {
   };
 
   getName() {
-    const uid = generateUID().substring(2, 6);
+    const uid = generateUID();
     return `${ this.role } ${ uid }`;
   };
 

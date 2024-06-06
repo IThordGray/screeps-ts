@@ -1,26 +1,39 @@
 import { CreepTypes } from "../abstractions/creep-types";
-import { DroneMemory } from "../creeps/drone";
-import { RoomState } from "../singletons/game-state";
+import { DroneMemory } from "../creeps/generic-drone";
+import { IMemoryCanDoTask } from "../units-of-work/doTask";
 import { Task } from "./task";
 import { TaskPriority } from "./taskPriority";
+import { TaskType } from "./taskType";
 
 export class TaskAllocator {
-
-  private readonly _roomState = RoomState.get(this._room.name);
 
   private _unallocatedCreeps: string[] = [];
   private _allocatedTasks: { [taskId: string]: Task } = {};
   private _creepTaskAllocationMap: { [creepName: string]: string } = {};
   private _taskCreepAllocationMap: { [taskId: string]: string } = {};
-
   private _allocatedTasksPerPriority: { [key in TaskPriority]: string[] } = {
     [TaskPriority.low]: [],
     [TaskPriority.medium]: [],
     [TaskPriority.high]: []
   };
+  readonly getAllocatedDrones = (taskType?: TaskType) => {
+    const creeps: Creep[] = [];
+    Array.from(Object.keys(this._creepTaskAllocationMap)).forEach(x => {
+      const creep = Game.creeps[x];
+      if (!creep) return; // Creep died for some reason.
+      const memory = creep.memory as CreepMemory & IMemoryCanDoTask;
 
-  readonly getAllocatedDrones = () => Array.from(Object.keys(this._creepTaskAllocationMap)).map(x => Game.creeps[x]);
+      if (taskType && memory.task.type !== taskType) return;
+      creeps.push(creep);
+    });
+
+    return creeps;
+  };
   readonly getUnallocatedDrones = () => this._unallocatedCreeps.map(x => Game.creeps[x]);
+
+  private get _roomState() {
+    return this._room.owned.state;
+  }
 
   constructor(
     private readonly _room: Room
@@ -34,8 +47,7 @@ export class TaskAllocator {
     this._taskCreepAllocationMap = {};
     this._allocatedTasksPerPriority = { [TaskPriority.low]: [], [TaskPriority.medium]: [], [TaskPriority.high]: [] };
 
-    const genericDrones = this._roomState.getCreepState(CreepTypes.genericDrone);
-    const drones = [ ...genericDrones ];
+    const drones = this._roomState.creepState.getCreeps(CreepTypes.genericDrone);
     if (!drones.length) return;
 
     drones.forEach(creep => {

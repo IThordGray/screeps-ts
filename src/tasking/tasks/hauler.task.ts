@@ -1,12 +1,13 @@
-import { Task, TaskArgs } from "tasking/task";
-import { Collect, IMemoryCanCollect } from "units-of-work/collect";
-import { Deliver, IMemoryCanDeliver } from "units-of-work/deliver";
+import { COLLECT_STATE, collectStateSwitchAction } from "../../helpers/creeps/creep-try-collect.extensions";
+import { DELIVER_STATE, deliverStateSwitchAction } from "../../helpers/creeps/creep-try-deliver.extensions";
 import { CheckState } from "../../units-of-work/check-state";
+import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";
 import { TaskType } from "../taskType";
 
 export type HaulerTaskArgs = { pickupPos: RoomPosition, dropOffPos: RoomPosition } & TaskArgs;
-export class HaulerTask extends Task implements IMemoryCanCollect, IMemoryCanDeliver {
+
+export class HaulerTask extends Task {
   readonly type = TaskType.haul;
   readonly dropOffPos: RoomPosition;
   readonly collectPos: RoomPosition;
@@ -21,29 +22,32 @@ export class HaulerTask extends Task implements IMemoryCanCollect, IMemoryCanDel
 
 export class HaulerTaskExecutor extends TaskExecutor<HaulerTask> {
   private readonly _checkState = new CheckState({
-    [Deliver.state]: {
-      condition: creep => creep.memory.state === Collect.state && creep.store.getFreeCapacity() === 0,
-      action: creep => Deliver.action(creep)
+    [DELIVER_STATE]: {
+      condition: creep => creep.isCollecting && creep.store.getFreeCapacity() === 0,
+      action: creep => deliverStateSwitchAction(creep)
     },
-    [Collect.state]: {
-      condition: creep => creep.memory.state === Deliver.state && creep.store.getUsedCapacity() === 0,
-      action: creep => Collect.action(creep)
+    [COLLECT_STATE]: {
+      condition: creep => creep.isDelivering && creep.store.getUsedCapacity() === 0,
+      action: creep => collectStateSwitchAction(creep)
     }
   });
 
-  private readonly _deliver = new Deliver({
-    getPosition: () => this.task.dropOffPos
-  });
-
-  private readonly _collect = new Collect({
-    getPosition: () => this.task.collectPos
-  });
-
   run(creep: Creep) {
-    creep.memory.state ??= Collect.state;
+    if (!creep.isDelivering && !creep.isCollecting) {
+      creep.memory.state = COLLECT_STATE;
+    }
+
+    creep.memory.state ??= COLLECT_STATE;
     this._checkState.check(creep);
 
-    if (creep.memory.state === Deliver.state) this._deliver.run(creep);
-    if (creep.memory.state === Collect.state) this._collect.run(creep);
+    if (creep.isDelivering) {
+      const { dropOffPos } = this.task;
+      creep.tryDeliver({ pos: dropOffPos });
+    }
+
+    if (creep.isCollecting) {
+      const { collectPos } = this.task;
+      creep.tryCollect({ pos: collectPos });
+    }
   }
 }

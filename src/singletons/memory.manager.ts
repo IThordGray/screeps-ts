@@ -1,5 +1,5 @@
 import { EventTypes } from "../abstractions/event-types";
-import { eventBus } from "./event-bus";
+import { eventBus } from "./eventBus";
 
 class MemoryManager {
   run(): void {

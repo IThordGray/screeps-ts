@@ -1,5 +1,6 @@
 export const EventTypes = {
   creepDied: "creepDied",
   creepSpawned: "creepSpawned",
-  milestoneActivated: "milestoneActivated"
+  milestoneActivated: "milestoneActivated",
+  controllerUpgraded: "controllerUpgraded"
 };

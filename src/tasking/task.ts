@@ -3,8 +3,9 @@ import { TaskPriority } from "./taskPriority";
 import { TaskType } from "./taskType";
 
 export type TaskArgs = { pos: RoomPosition;  priority?: TaskPriority }
-export abstract class Task {
-  readonly abstract type: TaskType;
+
+export abstract class Task implements ITask {
+  abstract readonly type: TaskType;
 
   readonly id = generateUID();
   readonly priority: TaskPriority;

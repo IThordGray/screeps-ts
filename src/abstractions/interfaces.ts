@@ -1,37 +1,28 @@
 import { Task } from "../tasking/task";
-import { CreepType } from "./creep-types";
 
-export interface OnInit {
-  init(): void;
+
+
+
+
+
+
+export interface ICreepNeeds {
+  creeps: ICreepRequirement[];
 }
 
-export interface OnUpdate {
-  update(): void;
+// export interface IStructureNeeds {
+//   structures:
+// }
+
+export interface IControllerNeeds {}
+
+export interface ITaskNeeds {
+  tasks: Task[];
 }
 
-export interface OnRun {
-  run(): void;
-}
-
-export interface OnDispose {
-  dispose(): void;
-}
-
-export interface IRequirements {
-  getCreepRequirements(): ICreepRequirements[];
-
-  getTaskRequirements(): Task[];
-}
-
-export interface IStrat extends IRequirements {
-
-  isDone(): boolean;
-
-  update(): void;
-}
-
-export interface ICreepRequirements {
-  creepType: string;
-  budget: number;
-  memory?: Record<string, any> | undefined;
+export interface IStratNeeds {
+  creeps?: ICreepNeeds;
+  // structures?: IStructureNeeds;
+  tasks?: ITaskNeeds;
+  controller?: IControllerNeeds;
 }

@@ -1,15 +1,18 @@
+export enum Direction {
+  north = FIND_EXIT_TOP,
+  east = FIND_EXIT_RIGHT,
+  south = FIND_EXIT_BOTTOM,
+  west = FIND_EXIT_LEFT
+}
+
 export function getAdjacentRoomNames(roomName: string) {
-  const roomParts = roomName.match(/([WE])(\d+)([NS])(\d+)/)!;
-  const ew = roomParts[1]; // W or E
-  const ewNum = parseInt(roomParts[2], 10);
-  const ns = roomParts[3]; // N or S
-  const nsNum = parseInt(roomParts[4], 10);
+  const adjacentRooms: Record<Direction, string> = {};
+  const exits = Game.map.describeExits(roomName);
+  if (!exits) return adjacentRooms;
 
-  // Calculate adjacent rooms
-  const north = `${ ew }${ ewNum }${ ns }${ nsNum + 1 }`;
-  const south = `${ ew }${ ewNum }${ ns }${ nsNum - 1 }`;
-  const east = `${ ew === "W" ? (ewNum === 0 ? "E1" : "W" + (ewNum - 1)) : "E" + (ewNum + 1) }${ ns }${ nsNum }`;
-  const west = `${ ew === "E" ? (ewNum === 0 ? "W1" : "E" + (ewNum - 1)) : "W" + (ewNum + 1) }${ ns }${ nsNum }`;
-
-  return { north, south, east, west };
+  if (exits[FIND_EXIT_TOP]) adjacentRooms[Direction.north] = exits[FIND_EXIT_TOP];
+  if (exits[FIND_EXIT_RIGHT]) adjacentRooms[Direction.east] = exits[FIND_EXIT_RIGHT];
+  if (exits[FIND_EXIT_BOTTOM]) adjacentRooms[Direction.south] = exits[FIND_EXIT_BOTTOM];
+  if (exits[FIND_EXIT_LEFT]) adjacentRooms[Direction.west] = exits[FIND_EXIT_LEFT];
+  return adjacentRooms;
 }
