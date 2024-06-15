@@ -1,4 +1,4 @@
-import { TaskType } from "../taskType";
+import { TaskTypes } from "../taskTypes";
 import { DroneMemory } from "../../creeps/generic-drone";
 import { IMemoryCanScout, Scout } from "../../units-of-work/scout";
 import { Task, TaskArgs } from "../task";
@@ -7,7 +7,7 @@ import { TaskExecutor } from "../taskExecutor";
 export type ScoutingTaskArgs = { roomNames: string[] } & TaskArgs;
 
 export class ScoutingTask extends Task implements IMemoryCanScout {
-  override type = TaskType.scout;
+  override type = TaskTypes.scout;
   readonly roomNames: string[];
 
   constructor(args: ScoutingTaskArgs) {

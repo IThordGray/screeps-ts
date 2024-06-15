@@ -1,8 +1,6 @@
 import { genericDroneCreep } from "../../../creeps/generic-drone";
-
-import { RoomState } from "../../../states/roomState";
 import { HarvestTask } from "../../../tasking/tasks/harvest.task";
-import { TaskType } from "../../../tasking/taskType";
+import { TaskTypes } from "../../../tasking/taskTypes";
 import { StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
@@ -13,9 +11,9 @@ export class DroneMilestone extends Milestone {
   private _current = { harvesters: 0 };
 
   init() {
-    this._stratConfig.conditions.push(new StratConfigCondition(
+    this._stratConfig.conditions.push(new StratConfigCondition(`Harvester`,
       () => {
-        this._current.harvesters = this._taskAllocator.getAllocatedDrones(TaskType.harvest).length;
+        this._current.harvesters = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.harvest).length;
         if (this._current.harvesters < this._required.harvesters) return false;
         return true;
       },

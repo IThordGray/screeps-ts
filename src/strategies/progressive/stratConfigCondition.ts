@@ -5,6 +5,7 @@ export type StratActionFn = () => IStratNeeds;
 
 export class StratConfigCondition {
   constructor(
+    public readonly name: string,
     public readonly check: StratConditionFn,
     public readonly action: StratActionFn
   ) {

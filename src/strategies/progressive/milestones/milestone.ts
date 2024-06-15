@@ -7,12 +7,10 @@ export abstract class Milestone {
   protected _creepRequirement?: ICreepRequirement;
 
   protected _room: Room;
-  protected _taskAllocator: ITaskAllocator;
   protected _stratConfig: StratConfig;
 
-  constructor(room: Room, taskAllocator: ITaskAllocator, config: StratConfig) {
+  constructor(room: Room, config: StratConfig) {
     this._room = room;
-    this._taskAllocator = taskAllocator;
     this._stratConfig = config;
 
     this.init();

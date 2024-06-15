@@ -1,4 +1,4 @@
-import { EventTypes } from "../abstractions/event-types";
+import { EventTypes } from "../abstractions/eventTypes";
 import { RoomState } from "../states/roomState";
 import { TaskAllocator } from "../tasking/taskAllocator";
 import { TaskDistributor } from "../tasking/taskDistributor";
@@ -59,7 +59,7 @@ export class RoomInstance {
     this.checkControllerLevel();
 
     this._constructionManager.update(); // place any new constructions sites based on the building plans
-    this._taskAllocator.update(); // update the state of the room's current drones and their respective tasks
+    // this._taskAllocator.update(); // update the state of the room's current drones and their respective tasks
     this._stratManager.update(); // updates the current strat based on the current room state
     this._spawner.update();
 

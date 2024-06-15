@@ -1,9 +1,12 @@
-import 'reflect-metadata';
+import "reflect-metadata";
+import { CreepTypes } from "./abstractions/creep-types";
+import { EventHub } from "./eventHub";
 
 import { VisualUtils } from "./helpers/visualUtils";
-import { gameState } from "./singletons/gameState";
-import { memoryManager } from "./singletons/memory.manager";
+import { MemoryManager } from "./singletons/memoryManager";
 import { roomManager } from "./singletons/roomManager";
+import { gameState } from "./states/gameState";
+import { TaskTypes } from "./tasking/taskTypes";
 import { ErrorMapper } from "./utils/ErrorMapper";
 
 import "./helpers/creeps";
@@ -19,7 +22,6 @@ declare global {
     Types added in this `global` block are in an ambient, global context. This is needed because `main.ts` is a module file (uses import or export).
     Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
   */
-
 
 
   // Memory extension samples
@@ -56,7 +58,11 @@ declare global {
   }
 }
 
+const memoryManager = new MemoryManager();
+const eventHub = new EventHub();
+
 function unwrappedLoop() {
+  memoryManager.override();
   gameState.update();
 
   _.forEach(Game.rooms, room => {
@@ -64,21 +70,11 @@ function unwrappedLoop() {
 
     roomManager.run(room);
 
-    // const minerCount = room.creepManager.minerCount();
-    // console.log(room.creepManager.minerCount());
-    // const headers = [ "Unit", "Count" ];
-    // const rows = [
-    //   [ "Miners", room.state.creeps.miners.length ],
-    //   [ "Haulers", room.state.creeps.haulers.length ],
-    //   [ "Builders", room.state.creeps.builders.length ],
-    //   [ "Upgraders", room.state.creeps.upgraders.length ]
-    // ];
-
-    // VisualUtils.createTable("sim", 0, 0, 5, 1, headers, rows);
 
   });
 
-  memoryManager.run();
+  memoryManager.cleanUp();
+  memoryManager.restore();
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change

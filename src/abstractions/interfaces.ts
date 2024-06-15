@@ -1,11 +1,5 @@
 import { Task } from "../tasking/task";
 
-
-
-
-
-
-
 export interface ICreepNeeds {
   creeps: ICreepRequirement[];
 }
@@ -14,7 +8,8 @@ export interface ICreepNeeds {
 //   structures:
 // }
 
-export interface IControllerNeeds {}
+export interface IControllerNeeds {
+}
 
 export interface ITaskNeeds {
   tasks: Task[];

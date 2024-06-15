@@ -11,6 +11,12 @@ Then I need to start looking at automatic building. Ideally get to RCL2 in order
 For roads, still need to look into path caching.
 
 
+Memory: 
+There is saving memory and runtime memory
+-- Create a memory mimic that serializes as one object at the end of the tick
+
+-- Use state as run time memory
+
 
 Strategies
 ![alt text](image.png)

@@ -1,9 +1,7 @@
-import { RoomState } from "../states/roomState";
 import { ProgressiveStrat } from "../strategies/progressive/progressive.strat";
-import { TaskAllocator } from "../tasking/taskAllocator";
 
 export const StratLoader = [
-  (room: Room, taskAllocator: ITaskAllocator) => new ProgressiveStrat(room, taskAllocator)
+  (room: Room) => new ProgressiveStrat(room)
 ];
 
 /**
@@ -12,18 +10,14 @@ export const StratLoader = [
  */
 export class StratManager implements IStratManager {
 
-  private readonly _roomState = this._room.owned.state;
-
   private readonly _currentStrat: IStrat;
-
-  private get taskAllocator() { return this._room.owned.taskAllocator }
 
   constructor(
     private readonly _room: Room
   ) {
 
     const progressiveStrat = StratLoader[0];
-    this._currentStrat = progressiveStrat(this._room, this.taskAllocator);
+    this._currentStrat = progressiveStrat(this._room);
   }
 
   getCurrentStrat(): IStrat {

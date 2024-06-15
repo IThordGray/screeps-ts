@@ -4,7 +4,7 @@ import { RoomState } from "../../states/roomState";
 import { CheckState } from "../../units-of-work/check-state";
 import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";
-import { TaskType } from "../taskType";
+import { TaskTypes } from "../taskTypes";
 
 export type BuildTaskArgs = TaskArgs & {
   structureType?: BuildableStructureConstant;
@@ -12,7 +12,7 @@ export type BuildTaskArgs = TaskArgs & {
 };
 
 export class BuildTask extends Task {
-  override type = TaskType.build;
+  override type = TaskTypes.build;
   readonly structureType?: BuildableStructureConstant;
   readonly constructionSiteId?: Id<ConstructionSite>;
 

@@ -5,12 +5,12 @@ import { CheckState } from "../../units-of-work/check-state";
 import { IMemoryCanUpgrade } from "../../units-of-work/upgrade";
 import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";
-import { TaskType } from "../taskType";
+import { TaskTypes } from "../taskTypes";
 
 export type UpgradeTaskArgs = IMemoryCanUpgrade & TaskArgs;
 
 export class UpgradeTask extends Task {
-  override type = TaskType.upgrade;
+  override type = TaskTypes.upgrade;
   readonly controllerId: Id<StructureController>;
 
   constructor(args: UpgradeTaskArgs) {

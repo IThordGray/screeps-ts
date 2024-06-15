@@ -3,12 +3,12 @@ import { DELIVER_STATE, deliverStateSwitchAction } from "../../helpers/creeps/cr
 import { CheckState } from "../../units-of-work/check-state";
 import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";
-import { TaskType } from "../taskType";
+import { TaskTypes } from "../taskTypes";
 
 export type HaulerTaskArgs = { pickupPos: RoomPosition, dropOffPos: RoomPosition } & TaskArgs;
 
 export class HaulerTask extends Task {
-  readonly type = TaskType.haul;
+  readonly type = TaskTypes.haul;
   readonly dropOffPos: RoomPosition;
   readonly collectPos: RoomPosition;
 

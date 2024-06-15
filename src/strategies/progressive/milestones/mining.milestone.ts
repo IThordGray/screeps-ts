@@ -4,7 +4,7 @@ import { haulerCreep } from "../../../creeps/hauler";
 import { minerCreep } from "../../../creeps/miner";
 import { getAdjacentRoomNames } from "../../../helpers/get-adjacent-room-names";
 import { ScoutingTask } from "../../../tasking/tasks/scouting.task";
-import { TaskType } from "../../../tasking/taskType";
+import { TaskTypes } from "../../../tasking/taskTypes";
 import { StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
@@ -18,7 +18,7 @@ export class MiningMilestone extends Milestone {
 
   init() {
     this._stratConfig.conditions = [];
-    this._stratConfig.conditions.push(new StratConfigCondition(
+    this._stratConfig.conditions.push(new StratConfigCondition(`Miners`,
       () => {
         this._current.miners = this._room.owned.state.creepState.getCreepCount(CreepTypes.miner);
         if (this._current.miners < this._required.miners) return false;
@@ -49,7 +49,7 @@ export class MiningMilestone extends Milestone {
         }));
 
         const exits = Object.values(getAdjacentRoomNames(this._room.name));
-        const scouts = this._taskAllocator.getAllocatedDrones(TaskType.scout);
+        const scouts = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.scout);
 
         const minerRequirementMet = this._current.miners === this._required.miners;
         const haulerRequirementMet = this._current.haulers === this._required.haulers;

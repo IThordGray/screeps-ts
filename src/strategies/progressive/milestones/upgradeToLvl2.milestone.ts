@@ -2,7 +2,7 @@ import { genericDroneCreep } from "../../../creeps/generic-drone";
 
 import { RoomState } from "../../../states/roomState";
 import { UpgradeTask } from "../../../tasking/tasks/upgrade.task";
-import { TaskType } from "../../../tasking/taskType";
+import { TaskTypes } from "../../../tasking/taskTypes";
 import { StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
@@ -12,9 +12,9 @@ export class UpgradeToLvl2Milestone extends Milestone {
   private _required = { upgraders: 4, controllerLevel: 2 };
 
   init() {
-    this._stratConfig.conditions.push(new StratConfigCondition(
+    this._stratConfig.conditions.push(new StratConfigCondition(`Upgraders`,
       () => {
-        this._current.upgraders = this._taskAllocator.getAllocatedDrones(TaskType.upgrade).length;
+        this._current.upgraders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.upgrade).length;
         if (this._current.upgraders < this._required.upgraders) return false;
 
         this._current.controllerLevel = this._room.owned.state.controller!.level;

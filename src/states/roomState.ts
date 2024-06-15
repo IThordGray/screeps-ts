@@ -1,11 +1,10 @@
-import { gameState } from "../singletons/gameState";
 import { ConstructionState } from "./constructionState";
 import { CreepState } from "./creepState";
 import { ResourceState } from "./resourceState";
 import { StructureState } from "./structureState";
+import { TaskState } from "./taskState";
 
 export class RoomState {
-
   private _sources!: { source: Source, distance: number, hasNearbyHostiles: boolean }[];
   readonly spawn: StructureSpawn;
   readonly controller: StructureController;
@@ -14,6 +13,7 @@ export class RoomState {
   readonly constructionState: ConstructionState;
   readonly creepState: CreepState;
   readonly resourceState: ResourceState;
+  readonly taskState: TaskState;
 
   get room() {
     return Game.rooms[this._roomName];
@@ -28,7 +28,8 @@ export class RoomState {
     this.structureState = new StructureState(this.room);
     this.constructionState = new ConstructionState(this.room);
     this.creepState = new CreepState(this.room);
-    this.resourceState = new ResourceState(this.room, this.spawn);
+    this.resourceState = new ResourceState(this.room);
+    this.taskState = new TaskState(this.room);
   }
 
   getSources(args: { excludeHostiles?: boolean } = {}) {

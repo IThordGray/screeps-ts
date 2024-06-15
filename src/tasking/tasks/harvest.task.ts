@@ -3,12 +3,12 @@ import { HARVEST_STATE, harvestStateSwitchAction } from "../../helpers/creeps/cr
 import { CheckState } from "../../units-of-work/check-state";
 import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";
-import { TaskType } from "../taskType";
+import { TaskTypes } from "../taskTypes";
 
 export type HarvestTaskArgs = { sourceId: Id<Source> } & TaskArgs;
 
 export class HarvestTask extends Task {
-  readonly type = TaskType.harvest;
+  readonly type = TaskTypes.harvest;
   readonly sourceId: Id<Source>;
 
   constructor(args: HarvestTaskArgs) {

@@ -1,4 +1,6 @@
 interface IStrat extends IRequirements {
+  getStatus(): Record<string, any>;
+
   update(): void;
 }
 

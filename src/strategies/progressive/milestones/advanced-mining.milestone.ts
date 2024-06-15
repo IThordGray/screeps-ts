@@ -8,7 +8,7 @@ import { RoomState } from "../../../states/roomState";
 import { TaskPriority } from "../../../tasking/taskPriority";
 import { HarvestTask } from "../../../tasking/tasks/harvest.task";
 import { ScoutingTask } from "../../../tasking/tasks/scouting.task";
-import { TaskType } from "../../../tasking/taskType";
+import { TaskTypes } from "../../../tasking/taskTypes";
 import { StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
@@ -55,7 +55,7 @@ export class AdvancedMiningMilestone extends Milestone {
 
   init() {
     this._stratConfig.conditions = [];
-    this._stratConfig.conditions.push(new StratConfigCondition(
+    this._stratConfig.conditions.push(new StratConfigCondition('Miners',
       () => {
         const miners = this._room.owned.state.creepState.getCreepCount(CreepTypes.miner);
         if (miners < 1) return false;
@@ -63,7 +63,7 @@ export class AdvancedMiningMilestone extends Milestone {
         const haulers = this._room.owned.state.creepState.getCreepCount(CreepTypes.hauler);
         if (haulers < 1) return false;
 
-        const scouts = this._taskAllocator.getAllocatedDrones(TaskType.scout);
+        const scouts = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.scout);
         if (scouts.length < 1) return false;
         return true;
       },
@@ -113,7 +113,7 @@ export class AdvancedMiningMilestone extends Milestone {
     for (let i = 0; i < sources.length; i++) {
       const { source } = sources[i];
 
-      const drones = this._taskAllocator.getAllocatedDrones(TaskType.harvest);
+      const drones = this._taskAllocator.getAllocatedDrones(TaskTypes.harvest);
       if (drones.length < (1 * (i + 1))) {
         const harvestTask = new HarvestTask({ sourceId: source.id, pos: source.pos });
         this._creepRequirement = genericDroneCreep.need(budget, { task: harvestTask });
@@ -138,7 +138,7 @@ export class AdvancedMiningMilestone extends Milestone {
     }
 
     const exits = Object.values(getAdjacentRoomNames(this._roomName));
-    const scouts = this._taskAllocator.getAllocatedDrones(TaskType.scout);
+    const scouts = this._taskAllocator.getAllocatedDrones(TaskTypes.scout);
     const requiredScoutCount = Math.min(exits.length, sources.length);
     if (scouts.length !== requiredScoutCount) {
       for (let i = 0; i > requiredScoutCount; i++) {

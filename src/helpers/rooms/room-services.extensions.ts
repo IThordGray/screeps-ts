@@ -1,11 +1,11 @@
 import { BuildPlanner } from "../../singletons/buildPlanner";
 import { ConstructionManager } from "../../singletons/constructionManager";
 import { CreepManager } from "../../singletons/creepManager";
-import { gameState } from "../../singletons/gameState";
+import { Dashboard } from "../../singletons/Dashboard";
+import { gameState } from "../../states/gameState";
 import { Spawner } from "../../singletons/spawner";
 import { StratManager } from "../../singletons/stratManager";
 import { RoomState } from "../../states/roomState";
-import { TaskAllocator } from "../../tasking/taskAllocator";
 import { TaskDistributor } from "../../tasking/taskDistributor";
 import { Type } from "../type";
 
@@ -34,11 +34,11 @@ Object.defineProperty(Room.prototype, 'owned', {
       state: { get() { return getRoomState(room.name) }},
       buildPlanner: { get() { return inject(room, BuildPlanner) } },
       constructionManager: { get() { return inject(room, ConstructionManager) } },
-      taskAllocator: { get() { return inject(room, TaskAllocator) } },
       stratManager: { get() { return inject(room, StratManager) } },
       spawner: { get() { return inject(room, Spawner) } },
       taskDistributor: { get() { return inject(room, TaskDistributor) } },
-      creepManager: { get() { return inject(room, CreepManager) } }
+      creepManager: { get() { return inject(room, CreepManager) } },
+      dashboard: { get() { return inject(room, Dashboard )} }
     })
   }
 })

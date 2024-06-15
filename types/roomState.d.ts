@@ -18,6 +18,11 @@ type IStructureState = {
   getStructures: (buildingType: any) => any;
 };
 
+interface ITaskState {
+  getAllocatedDrones: (taskType?: TaskType) => Creep[];
+  getUnallocatedDrones: () => Creep[];
+}
+
 interface IRoomState {
   spawn?: StructureSpawn;
   controller?: StructureController;
@@ -25,4 +30,5 @@ interface IRoomState {
   creepState: ICreepState;
   resourceState: IResourceState;
   structureState: IStructureState;
+  taskState: ITaskState;
 }

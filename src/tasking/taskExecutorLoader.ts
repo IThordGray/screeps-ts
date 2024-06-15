@@ -6,16 +6,16 @@ import { BuildTaskExecutor } from "./tasks/build.task";
 import { HarvestTaskExecutor } from "./tasks/harvest.task";
 import { HaulerTaskExecutor } from "./tasks/hauler.task";
 import { UpgradeTaskExecutor } from "./tasks/upgrade.task";
-import { TaskType } from "./taskType";
+import { TaskTypes } from "./taskTypes";
 
 export class TaskExecutorLoader {
   private static _taskExecutors: { [taskType: string]: Type<TaskExecutor<Task>> } = {
     // [TaskType.build]: BuildTaskExecutor,
     // [TaskType.defend]: DefendTaskExecutor,
-    [TaskType.harvest]: HarvestTaskExecutor,
-    [TaskType.haul]: HaulerTaskExecutor,
-    [TaskType.upgrade]: UpgradeTaskExecutor,
-    [TaskType.build]: BuildTaskExecutor
+    [TaskTypes.harvest]: HarvestTaskExecutor,
+    [TaskTypes.haul]: HaulerTaskExecutor,
+    [TaskTypes.upgrade]: UpgradeTaskExecutor,
+    [TaskTypes.build]: BuildTaskExecutor
 
     // [TaskType.repair]: RepairTaskExecutor,
     // [TaskType.scout]: ScoutTaskExecutor

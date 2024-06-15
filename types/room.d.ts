@@ -26,10 +26,10 @@ interface Room {
     state: IRoomState;
     buildPlanner: IBuildPlanner;
     constructionManager: IConstructionManager;
-    taskAllocator: ITaskAllocator;
     stratManager: IStratManager;
     spawner: ISpawner;
     taskDistributor: ITaskDistributor;
     creepManager: ICreepManager;
+    dashboard: IDashboard;
   };
 }

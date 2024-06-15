@@ -1,5 +1,5 @@
 import { CreepTypes } from "../abstractions/creep-types";
-import { EventTypes } from "../abstractions/event-types";
+import { EventTypes } from "../abstractions/eventTypes";
 import { DroneMemory, genericDroneCreep } from "../creeps/generic-drone";
 import { haulerCreep, HaulerMemory } from "../creeps/hauler";
 import { minerCreep, MinerMemory } from "../creeps/miner";

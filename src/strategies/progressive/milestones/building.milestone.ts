@@ -1,6 +1,6 @@
 import { genericDroneCreep } from "../../../creeps/generic-drone";
 import { BuildTask } from "../../../tasking/tasks/build.task";
-import { TaskType } from "../../../tasking/taskType";
+import { TaskTypes } from "../../../tasking/taskTypes";
 import { StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
@@ -16,9 +16,9 @@ export class BuildingMilestone extends Milestone {
 
   init(): void {
     this._stratConfig.conditions.pop();
-    this._stratConfig.conditions.push(new StratConfigCondition(
+    this._stratConfig.conditions.push(new StratConfigCondition('Builders',
       () => {
-        this._current.builders = this._taskAllocator.getAllocatedDrones(TaskType.build).length;
+        this._current.builders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.build).length;
         if (this._current.builders < this._required.builders) return false;
 
         this._current.extensions = this._room.owned.state.structureState.getExtensions().length;
@@ -39,7 +39,7 @@ export class BuildingMilestone extends Milestone {
 
   update(): void {
     const budget = this._room.energyCapacityAvailable;
-    const builders = this._taskAllocator.getAllocatedDrones(TaskType.build);
+    const builders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.build);
     if (builders.length < 7) this._creepRequirement = genericDroneCreep.need(budget, {});
 
     const [ constructionSite ] = this._room.owned.state.constructionState.getConstructionSites();

@@ -6,13 +6,12 @@ export class ResourceState {
   readonly getSources = () => {
     const sources = Object.values(this._sources).filter(x => !this._sourcesNearHostiles[x.id]);
     return sources.sort((a, b) => this._sourceDistanceFromSource[a.id] - this._sourceDistanceFromSource[b.id]);
-  }
+  };
 
   constructor(
-    public readonly room: Room,
-    public readonly spawn?: StructureSpawn
+    public readonly room: Room
   ) {
-    // console.log(this.room);
+    const [ spawn ] = this.room.find(FIND_MY_SPAWNS);
     const sources = this.room.find(FIND_SOURCES);
     sources.forEach(source => {
       this._sources[source.id] = source;
@@ -21,8 +20,8 @@ export class ResourceState {
         !!source.pos.findInRange(FIND_HOSTILE_SPAWNS, 5).length ||
         !!source.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length;
 
-      this._sourceDistanceFromSource[source.id] = !!this.spawn
-        ? PathFinder.search(this.spawn.pos, { pos: source.pos, range: 1 }).cost
+      this._sourceDistanceFromSource[source.id] = !!spawn
+        ? PathFinder.search(spawn.pos, { pos: source.pos, range: 1 }).cost
         : 99;
     });
   }

@@ -2,32 +2,44 @@
 import { Vector2 } from "../singletons/buildPlanner";
 
 export class TableConfig {
-  public columnWidth = 5;
+  public data: any[][] = [];
+  public columns: { columnName?: string, columnWidth: number }[] = [];
   public rowHeight = 1;
-  public fontSize = 0.4;
+  public fontSize: number;
   public colors = {
     oddRows: "#797A9E",
     evenRows: "#BBBDF6",
     borderColor: "#EEC170",
     textColor: "#C9DCB3"
   };
+
+  constructor(args: Partial<TableConfig>) {
+    Object.assign(this, args);
+
+    this.fontSize ??= 0.2 * this.rowHeight + 0.2;
+  }
+
+  showHeader() {
+    return this.columns.some(x => !!x.columnName);
+  }
 }
 
 export class VisualUtils {
 
-  public static createTable(roomName: string, x: number, y: number, columnWidth: number, rowHeight: number, headers: string[], rows: any[][]): void {
+  public static createTable(roomName: string, x: number, y: number, tableConfig: TableConfig): void {
     const visual = new RoomVisual(roomName);
+    const { rowHeight, fontSize, data, columns } = tableConfig;
 
     const margin = 0.1;
-    const fontSize = 0.2 * rowHeight + 0.2;
     const textXOffset = 0.3;
-    const rowHeightMinusMargin = (((1 + rows.length) - (2 * margin)) / (1 + rows.length)) * rowHeight;
+    const rowHeightMinusMargin = (((1 + data.length) - (2 * margin)) / (1 + data.length)) * rowHeight;
 
     const textYOffset = (rowHeightMinusMargin / 2) + (fontSize / 4);
 
+
     // Draw borders
-    const tableWidth = headers.length * columnWidth;
-    const tableHeight = (rows.length * rowHeight) + rowHeight;
+    const tableWidth = columns.reduce((p, c) => p + c.columnWidth, 0);
+    const tableHeight = (data.length * rowHeight) + (tableConfig.showHeader() ? rowHeight : 0);
 
     const lineColor = "#EEC170";
     const textColor = "#D9FFF5";
@@ -41,7 +53,8 @@ export class VisualUtils {
     const evenBackground = "#BBBDF6";
     const oddBackground = "#797A9E";
 
-    const rowsToRender = [ headers, ...rows ];
+    const rowsToRender = [ ...data ];
+    if (tableConfig.showHeader()) rowsToRender.unshift(columns.map(x => x.columnName ?? ''));
 
     const drawRowBackground = (rowIdx: number) => {
       const isHeader = rowIdx === 0;
@@ -69,10 +82,10 @@ export class VisualUtils {
         ? headerStyle
         : rowStyle;
 
-      for (let colIdx = 0; colIdx < headers.length; colIdx++) {
+      for (let colIdx = 0; colIdx < rowsToRender[0].length; colIdx++) {
         const cell = row[colIdx];
 
-        const startX = x + textXOffset + colIdx * columnWidth;
+        const startX = x + textXOffset + colIdx * columns[colIdx].columnWidth;
         const startY = y + (rowIdx * rowHeightMinusMargin) + textYOffset + margin;
 
         visual.text(cell, startX, startY, style);

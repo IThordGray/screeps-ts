@@ -1,4 +1,4 @@
-import { EventTypes } from "../../abstractions/event-types";
+import { EventTypes } from "../../abstractions/eventTypes";
 import { eventBus } from "../../singletons/eventBus";
 import { Task } from "../../tasking/task";
 import { BuildingMilestone } from "./milestones/building.milestone";
@@ -40,8 +40,7 @@ export class ProgressiveStrat implements IStrat {
   // }
 
   constructor(
-    private readonly _room: Room,
-    private readonly _taskAllocator: ITaskAllocator
+    private readonly _room: Room
   ) {
 
     this._milestones = this.getMilestoneFactories();
@@ -58,10 +57,10 @@ export class ProgressiveStrat implements IStrat {
 
   private getMilestoneFactories() {
     return [
-      () => new DroneMilestone(this._room, this._taskAllocator, this._config),
-      () => new MiningMilestone(this._room, this._taskAllocator, this._config),
-      () => new UpgradeToLvl2Milestone(this._room, this._taskAllocator, this._config),
-      () => new BuildingMilestone(this._room, this._taskAllocator, this._config)
+      () => new DroneMilestone(this._room, this._config),
+      () => new MiningMilestone(this._room, this._config),
+      () => new UpgradeToLvl2Milestone(this._room, this._config),
+      () => new BuildingMilestone(this._room, this._config)
     ];
   }
 
@@ -111,5 +110,18 @@ export class ProgressiveStrat implements IStrat {
     // const controllerNeeds = needs.controller;
     // if (controllerNeeds) this._structureNeeds = controllerNeeds;
 
+  }
+
+  getStatus(): Record<string, any> {
+    const currentMilestone = this._loadedMilestones[this._loadedMilestones.length - 1];
+    const status: Record<string, any> = {
+      'Current milestone': currentMilestone?.constructor.name,
+    };
+
+    this._config.conditions.forEach(x => {
+      status[x.name] = x.check() ? '✅' : '❌'
+    });
+
+    return status;
   }
 }
