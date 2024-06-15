@@ -72,6 +72,7 @@ export class ProgressiveStrat implements IStrat {
     this._loadedMilestones.push(milestone);
     if (!isReload) {
       // set the current milestone to memory (in case of global reset)
+      Memory.rooms[this._room.name] ??= {};
       Memory.rooms[this._room.name].stratManager ??= {};
       Memory.rooms[this._room.name].stratManager!.currentMilestone = milestone.constructor.name;
 
