@@ -1,6 +1,5 @@
 class RoomManager {
   run(room: Room): void {
-    room.owned.constructionManager.update(); // place any new constructions sites based on the building plans
     room.owned.stratManager.update(); // updates the current strat based on the current room state
     room.owned.spawner.update();
 
@@ -10,6 +9,29 @@ class RoomManager {
     room.owned.creepManager.run(); // run each creep assigned to the current room
 
     room.owned.dashboard.render();
+
+    const sources = room.owned.state.resourceState.getSources();
+    sources.forEach(source => {
+      const adjacent = source.getAdjacentSpots();
+      const open = source.getMinerSpots();
+
+      // adjacent.forEach(spot => {
+      //   new RoomVisual(room.name).circle(spot.x, spot.y, {
+      //     fill: 'transparent',
+      //     radius: 0.25,
+      //     stroke: 'green'
+      //   });
+      // })
+
+      open.forEach(spot => {
+        new RoomVisual(room.name).circle(spot.x, spot.y, {
+          fill: 'transparent',
+          radius: 0.25,
+          stroke: 'green'
+        });
+      })
+    });
+
   }
 }
 

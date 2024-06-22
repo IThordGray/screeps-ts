@@ -45,7 +45,9 @@ Creep.prototype.tryBuild = function(options: TryBuildOptions) {
     ];
 
     for (const structureType of priorities) {
-      if (priorityMap[structureType]) return priorityMap[structureType]?.[0] as ConstructionSite;
+      if (priorityMap[structureType]) {
+        return this.tryBuild({ target: priorityMap[structureType]?.[0] });
+      }
     }
 
     return ERR_INVALID_TARGET;
@@ -64,7 +66,7 @@ Creep.prototype.tryBuild = function(options: TryBuildOptions) {
     const code = this.build(targetFromId);
     if (code === ERR_NOT_IN_RANGE) return this.moveTo(targetFromId);
     return code;
-  }
+  };
 
   if (!pos && !target && !targetId) return ERR_INVALID_TARGET;
 

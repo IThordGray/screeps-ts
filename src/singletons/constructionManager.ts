@@ -1,30 +1,35 @@
-import { rcl2 } from "../building-plans/RCL2";
-import { RoomState } from "../states/roomState";
-import { BuildPlanner } from "./buildPlanner";
+import { BlueprintRCL2, BlueprintRCL3, BlueprintRCL4, BlueprintRCL5 } from "../building-plans/blueprints";
+import { Vector2 } from "./buildPlanner";
 
 export class ConstructionManager implements IConstructionManager {
 
-  private get buildPlanner() { return this._room.owned.buildPlanner }
+  private readonly _blueprints: Record<number, Array<{ structure: StructureConstant, pos: Vector2 }>> = {
+    2: [ ...BlueprintRCL2 ],
+    3: [ ...BlueprintRCL2, ...BlueprintRCL3 ],
+    4: [ ...BlueprintRCL2, ...BlueprintRCL3, ...BlueprintRCL4 ],
+    5: [ ...BlueprintRCL2, ...BlueprintRCL3, ...BlueprintRCL4, ...BlueprintRCL5 ]
+  };
 
   constructor(
     readonly _room: Room
   ) { }
 
-  private getConfigForLevel(level: number) {
-    if (!this._room.owned.state.spawn) return;
-    if (level === 2) return rcl2(this._room.owned.state.spawn.pos);
-    return undefined;
-  }
-
-  update() {
+  run() {
     if (!this._room.owned.state.controller) return;
     const controllerLevel = this._room.owned.state.controller.level;
-    const config = this.getConfigForLevel(controllerLevel);
-    this.buildPlanner.setConfig(config);
-  }
 
-  run() {
-    const constructionSites = this._room.owned.state.constructionState.getConstructionSites();
-    if (!constructionSites.length) this.buildPlanner.placeNext();
+    const currentBlueprint = this._blueprints[controllerLevel];
+    if (!currentBlueprint) return;
+
+    const { x, y } = this._room.owned.state.spawn?.pos ?? { x: 25, y: 25 };
+    const getRoomPosition = (offset: Vector2) => new RoomPosition(x + offset.x, y + offset.y, this._room.name);
+    for (const plan of currentBlueprint) {
+      const pos = getRoomPosition(plan.pos);
+      const lookResults = pos.look();
+      if (lookResults.some(x => x.structure?.structureType === plan.structure)) continue;
+      if (lookResults.some(x => !!x.constructionSite)) return;
+      pos.createConstructionSite(plan.structure as BuildableStructureConstant);
+      return;
+    }
   }
 }

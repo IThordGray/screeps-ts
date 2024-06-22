@@ -1,7 +1,7 @@
 import { genericDroneCreep } from "../../../creeps/generic-drone";
 import { HarvestTask } from "../../../tasking/tasks/harvest.task";
 import { TaskTypes } from "../../../tasking/taskTypes";
-import { StratConfigCondition } from "../stratConfigCondition";
+import { StratConditionResult, StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
 // Create 2 drones with 2 Harvest tasks at nearest source
@@ -14,12 +14,12 @@ export class DroneMilestone extends Milestone {
     this._stratConfig.conditions.push(new StratConfigCondition(`Harvester`,
       () => {
         this._current.harvesters = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.harvest).length;
-        if (this._current.harvesters < this._required.harvesters) return false;
-        return true;
+        if (this._current.harvesters < this._required.harvesters) return StratConditionResult.Failed;
+        return StratConditionResult.Passed;
       },
 
       () => {
-        const budget = this._room.energyCapacityAvailable;
+        const budget = Math.min(this._room.energyCapacityAvailable, 300);
         const source = this._room.owned.state.resourceState.getSources()[0];
         const newDrone = () => genericDroneCreep.need(budget, {
           task: new HarvestTask({

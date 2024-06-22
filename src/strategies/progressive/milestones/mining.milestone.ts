@@ -4,9 +4,10 @@ import { genericDroneCreep } from "../../../creeps/generic-drone";
 import { haulerCreep } from "../../../creeps/hauler";
 import { minerCreep } from "../../../creeps/miner";
 import { getAdjacentRoomNames } from "../../../helpers/get-adjacent-room-names";
+import { TaskPriority } from "../../../tasking/taskPriority";
 import { ScoutingTask } from "../../../tasking/tasks/scouting.task";
 import { TaskTypes } from "../../../tasking/taskTypes";
-import { StratConfigCondition } from "../stratConfigCondition";
+import { StratConditionResult, StratConfigCondition } from "../stratConfigCondition";
 import { Milestone } from "./milestone";
 
 export class MiningMilestone extends Milestone {
@@ -19,33 +20,36 @@ export class MiningMilestone extends Milestone {
       new StratConfigCondition("Miners",
         () => {
           this._current.miners = this._room.owned.state.creepState.getCreepCount(CreepTypes.miner);
-          if (this._current.miners < this._required.miners) return false;
-          return true;
+          if (this._current.miners < this._required.miners) return StratConditionResult.Failed;
+          return StratConditionResult.Passed;
         },
 
         () => {
           const creepNeeds: ICreepNeeds = { creeps: [] };
 
-          const budget = this._room.energyCapacityAvailable;
+          const budget = Math.min(this._room.energyCapacityAvailable, 300);
           const source = this._room.owned.state.resourceState.getSources()[0];
 
-          if (this._current.miners < this._required.miners) creepNeeds.creeps.push(minerCreep.need(budget, {
-            pos: source.pos,
-            sourceId: source.id
-          }));
+          const adjacentSpots = source.getMinerSpots();
+          for (let i = this._current.miners; i < this._required.miners; i++) {
+            const pos = adjacentSpots[i];
+            const need = minerCreep.need(budget, { pos: pos, sourceId: source.id });
+            creepNeeds.creeps.push(need);
+          }
 
           return { creeps: creepNeeds };
         }
       ),
+
       new StratConfigCondition("Haulers",
         () => {
           this._current.haulers = this._room.owned.state.creepState.getCreepCount(CreepTypes.hauler);
-          if (this._current.haulers < this._required.haulers) return false;
-          return true;
+          if (this._current.haulers < this._required.haulers) return StratConditionResult.Failed;
+          return StratConditionResult.Passed;
         },
 
         () => {
-          const budget = this._room.energyCapacityAvailable;
+          const budget = Math.min(this._room.energyCapacityAvailable, 300);
           const source = this._room.owned.state.resourceState.getSources()[0];
           const spawn = this._room.owned.state.spawn;
 
@@ -60,18 +64,18 @@ export class MiningMilestone extends Milestone {
           return { creeps: creepNeeds };
         }
       ),
+
       new StratConfigCondition("Scout",
         () => {
           const exits = Object.values(getAdjacentRoomNames(this._room.name));
-          const drones = this._room.owned.state.creepState.getCreeps(CreepTypes.genericDrone);
           const scouts = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.scout);
 
-          if (exits.length && scouts.length !== 1) return false;
-          return true;
+          if (exits.length && scouts.length !== 1) return StratConditionResult.Failed;
+          return StratConditionResult.Passed;
         },
 
         () => {
-          const budget = this._room.energyCapacityAvailable;
+          const budget = Math.min(this._room.energyCapacityAvailable, 300);
           const exits = Object.values(getAdjacentRoomNames(this._room.name));
           const drones = this._room.owned.state.creepState.getCreeps(CreepTypes.genericDrone);
           const scouts = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.scout);
@@ -81,7 +85,8 @@ export class MiningMilestone extends Milestone {
 
           const scoutingTask = new ScoutingTask({
             pos: new RoomPosition(25, 25, exits[0]),
-            roomNames: []
+            roomNames: [],
+            priority: TaskPriority.high
           });
 
           if (!drones.length) {

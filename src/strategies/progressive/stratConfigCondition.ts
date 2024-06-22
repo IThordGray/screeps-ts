@@ -1,6 +1,13 @@
 import { IStratNeeds } from "../../abstractions/interfaces";
 
-export type StratConditionFn = () => boolean;
+export enum StratConditionResult {
+  Failed,
+  Passed,
+  Parallel,
+  Recurring
+}
+
+export type StratConditionFn = () => StratConditionResult;
 export type StratActionFn = () => IStratNeeds;
 
 export class StratConfigCondition {

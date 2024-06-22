@@ -21,7 +21,6 @@ Creep.prototype.tryTransfer = function(options: TryTransferOptions) {
 
   const t = target ?? (targetId ? Game.getObjectById(targetId) : undefined);
   if (!t) return ERR_INVALID_TARGET;
-
   const code = this.transfer(t, resource, amount);
   if (code === ERR_NOT_IN_RANGE) return this.moveTo(t);
 

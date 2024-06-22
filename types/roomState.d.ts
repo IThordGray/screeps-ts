@@ -19,7 +19,7 @@ type IStructureState = {
 };
 
 interface ITaskState {
-  getAllocatedDrones: (taskType?: TaskType) => Creep[];
+  getAllocatedDrones: (...taskType: TaskType[]) => Creep[];
   getUnallocatedDrones: () => Creep[];
 }
 

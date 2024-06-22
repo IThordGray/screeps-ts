@@ -1,10 +1,11 @@
-import { Logger } from "../helpers/logger";
 import { Type } from "../helpers/type";
 import { Task } from "./task";
 import { TaskExecutor } from "./taskExecutor";
 import { BuildTaskExecutor } from "./tasks/build.task";
 import { HarvestTaskExecutor } from "./tasks/harvest.task";
 import { HaulerTaskExecutor } from "./tasks/hauler.task";
+import { StationaryBuildTaskExecutor } from "./tasks/stationary-build.task";
+import { StationaryUpgradeTaskExecutor } from "./tasks/stationary-upgrade.task";
 import { UpgradeTaskExecutor } from "./tasks/upgrade.task";
 import { TaskTypes } from "./taskTypes";
 
@@ -15,7 +16,10 @@ export class TaskExecutorLoader {
     [TaskTypes.harvest]: HarvestTaskExecutor,
     [TaskTypes.haul]: HaulerTaskExecutor,
     [TaskTypes.upgrade]: UpgradeTaskExecutor,
-    [TaskTypes.build]: BuildTaskExecutor
+    [TaskTypes.build]: BuildTaskExecutor,
+
+    [TaskTypes.stationaryBuild]: StationaryBuildTaskExecutor,
+    [TaskTypes.stationaryUpgrade]: StationaryUpgradeTaskExecutor
 
     // [TaskType.repair]: RepairTaskExecutor,
     // [TaskType.scout]: ScoutTaskExecutor

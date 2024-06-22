@@ -1,3 +1,5 @@
+import { PosUtils } from "../../utils/pos.utils";
+
 export const DROPPING_STATE = "dropping";
 export const dropStateSwitchAction = (creep: Creep) => creep.say("🧲 dropping");
 
@@ -12,11 +14,11 @@ Object.defineProperty(Creep.prototype, "isDropping", {
 
 Creep.prototype.tryDrop = function(options: TryDropOptions) {
   const { resource, amount } = options;
-  const pos = options.pos ? new RoomPosition(options.pos.x, options.pos.y, options.pos.roomName) : options.pos;
+  const pos = PosUtils.new(options.pos);
 
   if (!pos) return ERR_INVALID_TARGET;
 
-  if (!this.pos.isEqualTo(pos)) return this.moveTo(pos);
+  if (!pos.isEqualTo(this.pos)) return this.moveTo(pos);
 
   return this.drop(resource ?? RESOURCE_ENERGY, amount);
 };

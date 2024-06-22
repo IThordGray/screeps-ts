@@ -22,7 +22,7 @@ Creep.prototype.tryDeliver = function(options: TryDeliverOptions) {
     const targetFromId = Game.getObjectById(targetId!);
     if (!targetFromId) return ERR_INVALID_TARGET;
 
-    return this.tryTransfer({ target, resource, amount });
+    return this.tryTransfer({ target: targetFromId, resource, amount });
   };
 
   const tryDropOffAtPosition = () => {
@@ -34,7 +34,7 @@ Creep.prototype.tryDeliver = function(options: TryDeliverOptions) {
     const structures: StructureStorage[] = pos?.findInRange(FIND_STRUCTURES, dumpRange, {
       filter: x => {
         const viableTargets = [ STRUCTURE_STORAGE, STRUCTURE_TERMINAL, STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER ];
-        return viableTargets.some(t => t === x.structureType) && (x as StructureStorage).store.getFreeCapacity(resource) > 50;
+        return viableTargets.some(t => t === x.structureType) && (x as StructureStorage).store.getFreeCapacity(resource) > 0;
       }
     }) ?? [];
     structures.sort((a, b) => b.store.getUsedCapacity() - a.store.getUsedCapacity());

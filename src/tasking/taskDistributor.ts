@@ -16,7 +16,9 @@ export class TaskDistributor {
     [TaskTypes.harvest]: 6,
     [TaskTypes.haul]: 5,
     [TaskTypes.repair]: 4,
+    [TaskTypes.stationaryUpgrade]: 4,
     [TaskTypes.upgrade]: 3,
+    [TaskTypes.stationaryBuild]: 3,
     [TaskTypes.build]: 2,
     [TaskTypes.scout]: 1
   };
@@ -64,7 +66,27 @@ export class TaskDistributor {
       }
     }
 
+    if (task.type === TaskTypes.upgrade) {
+      score += drone.body.filter(x => x.type === "work").length * 10;
+      score += drone.body.filter(x => x.type === "carry").length * 5;
+      score += drone.body.filter(x => x.type === "move").length * 2;
+    }
+
     if (task.type === TaskTypes.build) {
+      score += drone.body.filter(x => x.type === "work").length * 10;
+      score += drone.body.filter(x => x.type === "carry").length * 5;
+      score += drone.body.filter(x => x.type === "move").length * 2;
+    }
+
+    if (task.type === TaskTypes.stationaryUpgrade) {
+      score += (drone.memory as DroneMemory).task.type === TaskTypes.upgrade ? 40 : 0;
+      score += drone.body.filter(x => x.type === "work").length * 10;
+      score += drone.body.filter(x => x.type === "carry").length * 5;
+      score += drone.body.filter(x => x.type === "move").length * 2;
+    }
+
+    if (task.type === TaskTypes.stationaryBuild) {
+      score += (drone.memory as DroneMemory).task.type === TaskTypes.build ? 40 : 0;
       score += drone.body.filter(x => x.type === "work").length * 10;
       score += drone.body.filter(x => x.type === "carry").length * 5;
       score += drone.body.filter(x => x.type === "move").length * 2;
@@ -77,7 +99,7 @@ export class TaskDistributor {
     }
 
     // Prefer closer creeps.
-    score -= distance;
+    // score -= distance;
 
     // Prefer unallocated creeps
     score -= !!memory.task ? 20 : 0;

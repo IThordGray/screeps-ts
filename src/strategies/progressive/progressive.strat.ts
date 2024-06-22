@@ -1,12 +1,15 @@
 import { EventTypes } from "../../abstractions/eventTypes";
+import { IStratNeeds } from "../../abstractions/interfaces";
 import { eventBus } from "../../singletons/eventBus";
 import { Task } from "../../tasking/task";
+import { AdvancedMiningMilestone } from "./milestones/advanced-mining.milestone";
 import { BuildingMilestone } from "./milestones/building.milestone";
 import { DroneMilestone } from "./milestones/drone.milestone";
+import { MaintainRCL2Milestone } from "./milestones/maintainRCL2.milestone";
 import { Milestone } from "./milestones/milestone";
 import { MiningMilestone } from "./milestones/mining.milestone";
-import { UpgradeToLvl2Milestone } from "./milestones/upgradeToLvl2.milestone";
-import { StratConfigCondition } from "./stratConfigCondition";
+import { UpgradeRCL2Milestone } from "./milestones/upgradeRCL2.milestone";
+import { StratConditionResult, StratConfigCondition } from "./stratConfigCondition";
 
 export class StratConfig {
   conditions: StratConfigCondition[] = [];
@@ -59,8 +62,10 @@ export class ProgressiveStrat implements IStrat {
     return [
       () => new DroneMilestone(this._room, this._config),
       () => new MiningMilestone(this._room, this._config),
-      () => new UpgradeToLvl2Milestone(this._room, this._config),
-      () => new BuildingMilestone(this._room, this._config)
+      () => new UpgradeRCL2Milestone(this._room, this._config),
+      () => new MaintainRCL2Milestone(this._room, this._config),
+      () => new BuildingMilestone(this._room, this._config),
+      () => new AdvancedMiningMilestone(this._room, this._config)
     ];
   }
 
@@ -82,21 +87,52 @@ export class ProgressiveStrat implements IStrat {
     return milestone.constructor.name;
   }
 
+  getStatus(): Record<string, any> {
+    const currentMilestone = this._loadedMilestones[this._loadedMilestones.length - 1];
+    const status: Record<string, any> = {
+      "Current milestone": currentMilestone?.constructor.name.substring(0, currentMilestone?.constructor.name.indexOf('Milestone'))
+    };
+
+    this._config.conditions.forEach(x => {
+      if (x.check() === StratConditionResult.Passed) status[x.name] = "✅";
+      if (x.check() === StratConditionResult.Failed) status[x.name] = "❌";
+      if (x.check() === StratConditionResult.Recurring) status[x.name] = "🔁";
+      if (x.check() === StratConditionResult.Parallel) status[x.name] = "🔀";
+    });
+
+    return status;
+  }
+
   update() {
     // Find a condition in the current config that is not satisfied.
-    let condition = this._config.conditions.find(x => !x.check());;
+
+    let condition = this._config.conditions.find(x => x.check() === StratConditionResult.Failed);
 
     while (!condition && !!this._milestones.length) {
       // There are milestones to load and o condition found yet.
       this.loadNextMilestone();
-      condition = this._config.conditions.find(x => !x.check());
+      condition = this._config.conditions.find(x => x.check() === StratConditionResult.Failed);
     }
 
     // No condition has been found, and no milestones are left.
     // Todo: notify engine
-    if (!condition) return;
+    // if (!condition) return;
 
-    const needs = condition.action();
+    const conditions = this._config.conditions.filter(x => [ StratConditionResult.Recurring, StratConditionResult.Parallel, StratConditionResult.Failed ].includes(x.check()));
+
+    let needs: IStratNeeds = {};
+    conditions.forEach(condition => {
+      const { creeps, tasks } = condition.action();
+      if (!!creeps?.creeps?.length) {
+        needs.creeps ??= { creeps: [] };
+        needs.creeps.creeps.push(...creeps.creeps);
+      }
+
+      if (!!tasks?.tasks?.length) {
+        needs.tasks ??= { tasks: [] };
+        needs.tasks.tasks.push(...tasks.tasks);
+      }
+    });
 
     // Based on the needs, set the task, creep and structure requirements
     const taskNeeds = needs.tasks;
@@ -111,18 +147,5 @@ export class ProgressiveStrat implements IStrat {
     // const controllerNeeds = needs.controller;
     // if (controllerNeeds) this._structureNeeds = controllerNeeds;
 
-  }
-
-  getStatus(): Record<string, any> {
-    const currentMilestone = this._loadedMilestones[this._loadedMilestones.length - 1];
-    const status: Record<string, any> = {
-      'Current milestone': currentMilestone?.constructor.name,
-    };
-
-    this._config.conditions.forEach(x => {
-      status[x.name] = x.check() ? '✅' : '❌'
-    });
-
-    return status;
   }
 }

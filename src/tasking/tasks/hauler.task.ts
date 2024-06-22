@@ -1,5 +1,5 @@
-import { COLLECT_STATE, collectStateSwitchAction } from "../../helpers/creeps/creep-try-collect.extensions";
-import { DELIVER_STATE, deliverStateSwitchAction } from "../../helpers/creeps/creep-try-deliver.extensions";
+import { COLLECT_STATE, collectStateSwitchAction } from "../../extensions/creeps/creep-try-collect.extensions";
+import { DELIVER_STATE, deliverStateSwitchAction } from "../../extensions/creeps/creep-try-deliver.extensions";
 import { CheckState } from "../../units-of-work/check-state";
 import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";

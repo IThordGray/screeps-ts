@@ -8,3 +8,4 @@ import "./creep-try-scout.extensions";
 import "./creep-try-transfer.extensions";
 import "./creep-try-upgrading.extensions";
 import "./creep-try-withdraw.extensions";
+import "./try-mine.extensions";

@@ -1,17 +1,11 @@
 import "reflect-metadata";
-import { CreepTypes } from "./abstractions/creep-types";
 import { EventHub } from "./eventHub";
-
-import { VisualUtils } from "./helpers/visualUtils";
 import { MemoryManager } from "./singletons/memoryManager";
 import { roomManager } from "./singletons/roomManager";
 import { gameState } from "./states/gameState";
-import { TaskTypes } from "./tasking/taskTypes";
 import { ErrorMapper } from "./utils/ErrorMapper";
 
-import "./helpers/creeps";
-import "./helpers/rooms/room-services.extensions";
-// import "./helpers/spawns/spawn-miner.extensions";
+import "./extensions";
 
 declare global {
   /*
@@ -22,6 +16,7 @@ declare global {
     Types added in this `global` block are in an ambient, global context. This is needed because `main.ts` is a module file (uses import or export).
     Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
   */
+
 
 
   // Memory extension samples
@@ -63,17 +58,15 @@ const eventHub = new EventHub();
 
 function unwrappedLoop() {
   memoryManager.override();
+  memoryManager.cleanUp();
+
   gameState.update();
 
   _.forEach(Game.rooms, room => {
     if (!room.controller?.my) return;
-
     roomManager.run(room);
-
-
   });
 
-  memoryManager.cleanUp();
   memoryManager.restore();
 }
 

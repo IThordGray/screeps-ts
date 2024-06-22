@@ -5,5 +5,7 @@ export const TaskTypes: Record<keyof typeof TTaskTypes, TaskType>  = {
   build: "build",
   repair: "repair",
   scout: "scout",
-  upgrade: "upgrade"
+  upgrade: "upgrade",
+  stationaryBuild: "stationaryBuild",
+  stationaryUpgrade: "stationaryUpgrade"
 };

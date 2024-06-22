@@ -7,7 +7,7 @@ import { Spawner } from "../../singletons/spawner";
 import { StratManager } from "../../singletons/stratManager";
 import { RoomState } from "../../states/roomState";
 import { TaskDistributor } from "../../tasking/taskDistributor";
-import { Type } from "../type";
+import { Type } from "../../helpers/type";
 
 const groupByRoom: { [room: string]: { [type: string]: any } } = {};
 

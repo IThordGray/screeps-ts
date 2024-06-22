@@ -21,9 +21,7 @@ class MinerCreep extends BaseCreep {
   }
 
   run(creep: Miner) {
-    if (!creep) return;
-    const targetId = creep.memory.sourceId;
-    creep.tryHarvest({ targetId });
+    creep.tryMine({ targetId: creep.memory.sourceId, pos: creep.memory.pos });
   }
 
 }

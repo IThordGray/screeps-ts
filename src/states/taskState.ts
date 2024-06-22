@@ -15,14 +15,14 @@ export class TaskState {
     [TaskPriority.high]: []
   };
 
-  readonly getAllocatedDrones = (taskType?: TaskType) => {
+  readonly getAllocatedDrones = (...taskTypes: TaskType[]) => {
     const creeps: Creep[] = [];
     Array.from(Object.keys(this._creepTaskAllocationMap)).forEach(x => {
       const creep = Game.creeps[x];
       if (!creep) return; // Creep died for some reason.
       const memory = creep.memory as CreepMemory & IMemoryCanDoTask;
 
-      if (taskType && memory.task.type !== taskType) return;
+      if (taskTypes?.length && !taskTypes.includes(memory.task.type)) return;
       creeps.push(creep);
     });
 

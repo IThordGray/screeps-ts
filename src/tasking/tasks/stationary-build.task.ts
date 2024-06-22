@@ -6,19 +6,17 @@ import { Task, TaskArgs } from "../task";
 import { TaskExecutor } from "../taskExecutor";
 import { TaskTypes } from "../taskTypes";
 
-export type BuilderDrone = Creep & { memory: { task: BuildTaskArgs } }
-
-export type BuildTaskArgs = TaskArgs & {
+export type StationaryBuildTaskArgs = TaskArgs & {
   structureType?: BuildableStructureConstant;
   constructionSiteId?: Id<ConstructionSite>;
 };
 
-export class BuildTask extends Task {
-  override type = TaskTypes.build;
+export class StationaryBuildTask extends Task {
+  override type = TaskTypes.stationaryBuild;
   readonly structureType?: BuildableStructureConstant;
   readonly constructionSiteId?: Id<ConstructionSite>;
 
-  constructor(args: BuildTaskArgs) {
+  constructor(args: StationaryBuildTaskArgs) {
     super(args);
 
     this.structureType = args.structureType;
@@ -26,7 +24,7 @@ export class BuildTask extends Task {
   }
 }
 
-export class BuildTaskExecutor extends TaskExecutor<BuildTask> {
+export class StationaryBuildTaskExecutor extends TaskExecutor<StationaryBuildTask> {
 
   private readonly _checkState = new CheckState({
     [COLLECT_STATE]: {
@@ -52,17 +50,7 @@ export class BuildTaskExecutor extends TaskExecutor<BuildTask> {
     }
 
     if (creep.isCollecting) {
-      const [ container ] = Game.rooms[creep.memory.room].owned.state.structureState.getContainers();
-      const [ source ] = Game.rooms[creep.memory.room].owned.state.resourceState.getSources();
-
-      if (container) return creep.tryWithdraw({ target: container });
-
-      const droppedResources = source.pos?.findInRange(FIND_DROPPED_RESOURCES, 5) ?? [];
-      droppedResources.sort((a, b) => b.amount - a.amount);
-      const [ resource ] = droppedResources;
-      if (resource && resource.amount > 250) return creep.tryCollect({ target: resource });
-
-      return creep.tryHarvest({ target: source });
+      /* Notify haulers that I am receiving */
     }
   }
 }
