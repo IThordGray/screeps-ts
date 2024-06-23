@@ -1,4 +1,4 @@
-import { Task } from "../tasking/task";
+import { Task } from "../tasking/Task";
 
 export interface ICreepNeeds {
   creeps: ICreepRequirement[];

@@ -1,8 +1,8 @@
 import { EventTypes } from "./abstractions/eventTypes";
 import { Logger } from "./helpers/logger";
-import { eventBus } from "./singletons/eventBus";
+import { eventBus } from "./singletons/EventBus";
 
-export class EventHub {
+class EventHub {
   private readonly _onCreepSpawn = (creep: Creep) => {
     Logger.success(`Creep spawned: ${ creep.name }`);
   };
@@ -19,10 +19,12 @@ export class EventHub {
     Logger.info(`Controller upgraded to ${ level } at ${ tick }`);
   };
 
-  constructor() {
+  register(): void {
     eventBus.on(EventTypes.creepSpawned, this._onCreepSpawn.bind(this));
     eventBus.on(EventTypes.creepDied, this._onCreepDeath.bind(this));
     eventBus.on(EventTypes.milestoneActivated, this._onMilestoneActivated.bind(this));
     eventBus.on(EventTypes.controllerUpgraded, this._onControllerUpgraded.bind(this));
   }
 }
+
+export const eventHub = new EventHub();

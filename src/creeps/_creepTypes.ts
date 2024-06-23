@@ -1,4 +1,4 @@
-export { haulerCreep } from "./hauler";
-export { minerCreep } from "./miner";
-export { scoutCreep } from "./scout";
-export { genericDroneCreep } from "./generic-drone";
+export { haulerCreep } from "./Hauler";
+export { minerCreep } from "./Miner";
+export { scoutCreep } from "./Scout";
+export { genericDroneCreep } from "./GenericDrone";

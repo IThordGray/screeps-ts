@@ -1,5 +1,4 @@
-import { Task } from "../tasking/task";
-import { TaskExecutor } from "../tasking/taskExecutor";
+import { Task, TaskExecutor } from "../tasking/Task";
 
 export interface IMemoryCanDoTask {
   task: Task;

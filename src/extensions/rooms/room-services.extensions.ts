@@ -1,13 +1,12 @@
-import { BuildPlanner } from "../../singletons/buildPlanner";
-import { ConstructionManager } from "../../singletons/constructionManager";
-import { CreepManager } from "../../singletons/creepManager";
-import { Dashboard } from "../../singletons/Dashboard";
-import { gameState } from "../../states/gameState";
-import { Spawner } from "../../singletons/spawner";
-import { StratManager } from "../../singletons/stratManager";
-import { RoomState } from "../../states/roomState";
-import { TaskDistributor } from "../../tasking/taskDistributor";
 import { Type } from "../../helpers/type";
+import { ConstructionManager } from "../../services/ConstructionManager";
+import { CreepManager } from "../../services/CreepManager";
+import { Dashboard } from "../../services/Dashboard";
+import { Spawner } from "../../services/Spawner";
+import { StratManager } from "../../services/StratManager";
+import { gameState } from "../../states/GameState";
+import { RoomState } from "../../states/RoomState";
+import { TaskDistributor } from "../../services/TaskDistributor";
 
 const groupByRoom: { [room: string]: { [type: string]: any } } = {};
 
@@ -32,7 +31,6 @@ Object.defineProperty(Room.prototype, 'owned', {
     const room = this;
     return Object.defineProperties({ }, {
       state: { get() { return getRoomState(room.name) }},
-      buildPlanner: { get() { return inject(room, BuildPlanner) } },
       constructionManager: { get() { return inject(room, ConstructionManager) } },
       stratManager: { get() { return inject(room, StratManager) } },
       spawner: { get() { return inject(room, Spawner) } },

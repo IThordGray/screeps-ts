@@ -1,5 +1,5 @@
 // Define a TypeScript class with static functions to create tables in Screeps
-import { Vector2 } from "../singletons/buildPlanner";
+import { Vector2 } from "../classes/Vector2";
 
 export class TableConfig {
   public data: any[][] = [];

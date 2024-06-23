@@ -1,8 +1,8 @@
 import { mockGlobal, mockInstanceOf } from "screeps-jest";
 import { Logger } from "../src/helpers/logger";
-import { Milestone } from "../src/strategies/progressive/milestones/milestone";
-import { ProgressiveStrat, StratConfig } from "../src/strategies/progressive/progressive.strat";
-import { StratConfigCondition } from "../src/strategies/progressive/stratConfigCondition";
+import { Milestone } from "../src/strategies/progressive/Milestone";
+import { ProgressiveStrat, StratConfig } from "../src/strategies/progressive/ProgressiveStrat";
+import { StratCondition } from "../src/strategies/progressive/StratCondition";
 import { TaskAllocator } from "../src/tasking/taskAllocator";
 import spyOn = jest.spyOn;
 
@@ -64,9 +64,9 @@ describe("ProgressiveStrat", () => {
 
     jest.spyOn(Milestone1.prototype, "init").mockImplementation(() => {
       config.conditions = [
-        new StratConfigCondition(() => true, () => ({})),
-        new StratConfigCondition(() => true, () => ({})),
-        new StratConfigCondition(() => true, () => ({}))
+        new StratCondition(() => true, () => ({})),
+        new StratCondition(() => true, () => ({})),
+        new StratCondition(() => true, () => ({}))
       ];
     });
 
@@ -91,9 +91,9 @@ describe("ProgressiveStrat", () => {
 
     jest.spyOn(Milestone1.prototype, "init").mockImplementation(() => {
       config.conditions = [
-        new StratConfigCondition(() => true, () => ({})),
-        new StratConfigCondition(() => false, () => ({})),
-        new StratConfigCondition(() => true, () => ({}))
+        new StratCondition(() => true, () => ({})),
+        new StratCondition(() => false, () => ({})),
+        new StratCondition(() => true, () => ({}))
       ];
     });
 
@@ -133,7 +133,7 @@ describe("ProgressiveStrat", () => {
 
     jest.spyOn(Milestone1.prototype, "init").mockImplementation(() => {
       config.conditions = [
-        new StratConfigCondition(() => false, action)
+        new StratCondition(() => false, action)
       ];
     });
 
@@ -167,7 +167,7 @@ describe("ProgressiveStrat", () => {
 
     jest.spyOn(Milestone1.prototype, "init").mockImplementation(() => {
       config.conditions = [
-        new StratConfigCondition(() => false, action)
+        new StratCondition(() => false, action)
       ];
     });
 
@@ -212,13 +212,13 @@ describe("ProgressiveStrat", () => {
 
     jest.spyOn(Milestone1.prototype, "init").mockImplementation(() => {
       config.conditions = [
-        new StratConfigCondition(() => true, () => ({}))
+        new StratCondition(() => true, () => ({}))
       ];
     });
 
     jest.spyOn(Milestone2.prototype, "init").mockImplementation(() => {
       config.conditions = [
-        new StratConfigCondition(() => true, () => ({}))
+        new StratCondition(() => true, () => ({}))
       ];
     });
 

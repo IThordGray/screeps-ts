@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { EventHub } from "./eventHub";
-import { MemoryManager } from "./singletons/memoryManager";
-import { roomManager } from "./singletons/roomManager";
-import { gameState } from "./states/gameState";
+import { eventHub } from "./eventHub";
+import { roomManager } from "./services/RoomManager";
+import { memoryManager } from "./singletons/MemoryManager";
+import { gameState } from "./states/GameState";
 import { ErrorMapper } from "./utils/ErrorMapper";
 
 import "./extensions";
@@ -16,7 +16,6 @@ declare global {
     Types added in this `global` block are in an ambient, global context. This is needed because `main.ts` is a module file (uses import or export).
     Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
   */
-
 
 
   // Memory extension samples
@@ -53,9 +52,6 @@ declare global {
   }
 }
 
-const memoryManager = new MemoryManager();
-const eventHub = new EventHub();
-
 function unwrappedLoop() {
   memoryManager.override();
   memoryManager.cleanUp();
@@ -72,6 +68,7 @@ function unwrappedLoop() {
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
+eventHub.register();
 const loop = ErrorMapper.wrapLoop(unwrappedLoop);
 
 export { loop, unwrappedLoop };

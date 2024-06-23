@@ -1,17 +1,17 @@
 import { mockGlobal, mockInstanceOf } from "screeps-jest";
 import { CreepTypes } from "../src/abstractions/creep-types";
-import { DroneMemory } from "../src/creeps/generic-drone";
+import { DroneMemory } from "../src/creeps/GenericDrone";
 import { Logger } from "../src/helpers/logger";
-import { StratManager } from "../src/singletons/stratManager";
-import { TaskState } from "../src/states/taskState";
-import { ProgressiveStrat } from "../src/strategies/progressive/progressive.strat";
-import { TaskDistributor } from "../src/tasking/taskDistributor";
-import { TaskPriority } from "../src/tasking/taskPriority";
-import { BuildTask } from "../src/tasking/tasks/build.task";
-import { HarvestTask } from "../src/tasking/tasks/harvest.task";
-import { HaulerTask } from "../src/tasking/tasks/hauler.task";
-import { ScoutingTask } from "../src/tasking/tasks/scouting.task";
-import { StationaryBuildTask } from "../src/tasking/tasks/stationary-build.task";
+import { StratManager } from "../src/services/StratManager";
+import { TaskState } from "../src/states/TaskState";
+import { ProgressiveStrat } from "../src/strategies/progressive/ProgressiveStrat";
+import { TaskDistributor } from "../src/services/TaskDistributor";
+import { TaskPriority } from "../src/tasking/TaskPriority";
+import { BuildTask } from "../src/tasking/tasks/BuildTask";
+import { HarvestTask } from "../src/tasking/tasks/HarvestTask";
+import { HaulTask } from "../src/tasking/tasks/HaulTask";
+import { ScoutingTask } from "../src/tasking/tasks/Scouting.task";
+import { StationaryBuildTask } from "../src/tasking/tasks/StationaryBuildTask";
 import spyOn = jest.spyOn;
 
 const myController = mockInstanceOf<StructureController>({ my: true, level: 1 });
@@ -92,7 +92,7 @@ describe("ProgressiveStrat", () => {
 
     const buildTask = new BuildTask({ pos: new RoomPosition(0, 0, ''), constructionSiteId: 'abc' as any });
     const scoutTask = new ScoutingTask({ pos: new RoomPosition(0, 0, ''), roomNames: 'abc' as any });
-    const haulerTask = new HaulerTask({ pos: new RoomPosition(0, 0, ''), pickupPos: new RoomPosition(0, 0, ''), dropOffPos: new RoomPosition(0, 0, '') });
+    const haulerTask = new HaulTask({ pos: new RoomPosition(0, 0, ''), pickupPos: new RoomPosition(0, 0, ''), dropOffPos: new RoomPosition(0, 0, '') });
     const harvestTask = new HarvestTask({ pos: new RoomPosition(0, 0, ''), sourceId: 'abc' as any });
 
     jest.spyOn(mockStrat, "taskNeeds", "get").mockReturnValue([
@@ -116,7 +116,7 @@ describe("ProgressiveStrat", () => {
 
     const buildTask = new BuildTask({ pos: new RoomPosition(0, 0, ''), constructionSiteId: 'abc' as any });
     const scoutTask = new ScoutingTask({ pos: new RoomPosition(0, 0, ''), roomNames: 'abc' as any, priority: TaskPriority.high });
-    const haulerTask = new HaulerTask({ pos: new RoomPosition(0, 0, ''), pickupPos: new RoomPosition(0, 0, ''), dropOffPos: new RoomPosition(0, 0, '') });
+    const haulerTask = new HaulTask({ pos: new RoomPosition(0, 0, ''), pickupPos: new RoomPosition(0, 0, ''), dropOffPos: new RoomPosition(0, 0, '') });
     const harvestTask = new HarvestTask({ pos: new RoomPosition(0, 0, ''), sourceId: 'abc' as any });
 
     jest.spyOn(mockStrat, "taskNeeds", "get").mockReturnValue([

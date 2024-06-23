@@ -1,4 +1,4 @@
-import { Vector2 } from "../singletons/buildPlanner";
+import { Vector2 } from "../classes/Vector2";
 
 export const BlueprintRCL2 = [
   { structure: STRUCTURE_EXTENSION, pos: new Vector2(-1, -1) },
