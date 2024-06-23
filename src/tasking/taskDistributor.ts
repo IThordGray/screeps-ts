@@ -6,21 +6,20 @@ import { TaskTypes } from "./taskTypes";
 export class TaskDistributor {
 
   private readonly _priorityCostsMap = {
-    [TaskPriority.high]: 30,
-    [TaskPriority.medium]: 20,
-    [TaskPriority.low]: 10
+    [TaskPriority.high]: 150,
+    [TaskPriority.medium]: 75,
+    [TaskPriority.low]: 0
   };
 
   private readonly _taskPriorityCostMap = {
-    [TaskTypes.defend]: 10,
-    [TaskTypes.harvest]: 6,
-    [TaskTypes.haul]: 5,
-    [TaskTypes.repair]: 4,
-    [TaskTypes.stationaryUpgrade]: 4,
-    [TaskTypes.upgrade]: 3,
-    [TaskTypes.stationaryBuild]: 3,
-    [TaskTypes.build]: 2,
-    [TaskTypes.scout]: 1
+    [TaskTypes.harvest]: 80,
+    [TaskTypes.haul]: 60,
+    [TaskTypes.repair]: 40,
+    [TaskTypes.stationaryUpgrade]: 30,
+    [TaskTypes.upgrade]: 30,
+    [TaskTypes.stationaryBuild]: 30,
+    [TaskTypes.build]: 30,
+    [TaskTypes.scout]: 10
   };
 
   private taskCompareFn = (a: Task, b: Task) => {
@@ -28,12 +27,6 @@ export class TaskDistributor {
     const bCost = this._priorityCostsMap[b.priority] + this._taskPriorityCostMap[b.type];
     return bCost - aCost;
   };
-
-  private readonly _roomState = this._room.owned.state;
-
-  private get stratManager() {
-    return this._room.owned.stratManager;
-  }
 
   constructor(
     private readonly _room: Room
@@ -48,58 +41,26 @@ export class TaskDistributor {
   private calculateDroneSuitability(drone: Creep, task: Task) {
     let score = 0;
     let memory = drone.memory as DroneMemory;
-    const distance = PathFinder.search(drone.pos, task.pos).cost;
 
     if (task.type === TaskTypes.harvest) {
-      if (distance < 10) { // Close proximity
-        score += drone.body.filter(x => x.type === "work").length * 10;
-        score += drone.body.filter(x => x.type === "carry").length * 5;
-        score += drone.body.filter(x => x.type === "move").length * 1;
-      } else if (drone.pos.roomName === task.pos.roomName) { // Same room
-        score += drone.body.filter(x => x.type === "work").length * 8;
-        score += drone.body.filter(x => x.type === "carry").length * 8;
-        score += drone.body.filter(x => x.type === "move").length * 5;
-      } else { // Different room
-        score += drone.body.filter(x => x.type === "move").length * 10;
-        score += drone.body.filter(x => x.type === "work").length * 5;
-        score += drone.body.filter(x => x.type === "carry").length * 3;
-      }
     }
 
     if (task.type === TaskTypes.upgrade) {
-      score += drone.body.filter(x => x.type === "work").length * 10;
-      score += drone.body.filter(x => x.type === "carry").length * 5;
-      score += drone.body.filter(x => x.type === "move").length * 2;
     }
 
     if (task.type === TaskTypes.build) {
-      score += drone.body.filter(x => x.type === "work").length * 10;
-      score += drone.body.filter(x => x.type === "carry").length * 5;
-      score += drone.body.filter(x => x.type === "move").length * 2;
     }
 
     if (task.type === TaskTypes.stationaryUpgrade) {
-      score += (drone.memory as DroneMemory).task.type === TaskTypes.upgrade ? 40 : 0;
-      score += drone.body.filter(x => x.type === "work").length * 10;
-      score += drone.body.filter(x => x.type === "carry").length * 5;
-      score += drone.body.filter(x => x.type === "move").length * 2;
+      score += (drone.memory as DroneMemory).task?.type === TaskTypes.upgrade ? 60 : 0;
     }
 
     if (task.type === TaskTypes.stationaryBuild) {
-      score += (drone.memory as DroneMemory).task.type === TaskTypes.build ? 40 : 0;
-      score += drone.body.filter(x => x.type === "work").length * 10;
-      score += drone.body.filter(x => x.type === "carry").length * 5;
-      score += drone.body.filter(x => x.type === "move").length * 2;
+      score += (drone.memory as DroneMemory).task?.type === TaskTypes.build ? 60 : 0;
     }
 
     if (task.type === TaskTypes.repair) {
-      score += drone.body.filter(x => x.type === "work").length * 10;
-      score += drone.body.filter(x => x.type === "carry").length * 5;
-      score += drone.body.filter(x => x.type === "move").length * 2;
     }
-
-    // Prefer closer creeps.
-    // score -= distance;
 
     // Prefer unallocated creeps
     score -= !!memory.task ? 20 : 0;
@@ -124,14 +85,17 @@ export class TaskDistributor {
   }
 
   run() {
-    const tasks = this.stratManager.getCurrentStrat().taskNeeds.sort(this.taskCompareFn);
+    const tasks = [ ...this._room.owned.stratManager.getCurrentStrat().taskNeeds ];
+    tasks.sort(this.taskCompareFn)
+
     const unallocatedDrones = this._room.owned.state.taskState.getUnallocatedDrones();
     const allocatedDrones = this._room.owned.state.taskState.getAllocatedDrones();
 
     const canReassign = tasks.length > unallocatedDrones.length;
     const drones = canReassign ? [ ...allocatedDrones, ...unallocatedDrones ] : unallocatedDrones;
 
-    for (const task of tasks) {
+    for (let i = 0; i < Math.min(drones.length, tasks.length); i++) {
+      const task = tasks[i];
       const drone = this.findBestDroneForTask(task, drones);
       if (!drone) continue;
 

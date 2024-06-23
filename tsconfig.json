@@ -11,10 +11,8 @@
     "noImplicitReturns": true,
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
-    "types": ["node", "lodash"],
-    "typeRoots": [
-      "types"
-    ]
+    "types": ["node", "lodash", "jest"],
+    "typeRoots": [ "types", "./node_modules/@types" ]
   },
   "exclude": [
     "node_modules"
