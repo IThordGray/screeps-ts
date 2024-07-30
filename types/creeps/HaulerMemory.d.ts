@@ -1,0 +1,1 @@
+type MinerMemory = CreepMemory;
