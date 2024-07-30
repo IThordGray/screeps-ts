@@ -1,10 +1,12 @@
-import { CreepTypes } from "../../../abstractions/creep-types";
-import { DroneMemory, genericDroneCreep } from "../../../creeps/GenericDrone";
-import { Task } from "../../../tasking/Task";
+import { CreepTypes } from "../../../abstractions/CreepTypes";
+import { GenericDroneCreep, GenericDroneNeed } from "../../../creeps/creeps/GenericDrone";
+import { findOpenSpotNearTargets } from "../../../helpers/find-open-spot-near-targets.helper";
+import { BaseTask } from "../../../tasking/BaseTask";
 import { BuildTask } from "../../../tasking/tasks/BuildTask";
+import { StationaryBuildTask } from "../../../tasking/tasks/StationaryBuildTask";
 import { TaskTypes } from "../../../tasking/TaskTypes";
-import { StratConditionResult, StratCondition } from "../StratCondition";
 import { Milestone } from "../Milestone";
+import { StratCondition, StratConditionResult } from "../StratCondition";
 
 export class BuildRCL2Milestone extends Milestone {
   private _required = { builders: 3, extensions: 5 };
@@ -12,9 +14,6 @@ export class BuildRCL2Milestone extends Milestone {
   init(): void {
     this._stratConfig.conditions.push(new StratCondition("Extensions",
       () => {
-        // const builders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.build, TaskTypes.stationaryBuild);
-        // if (builders.length < this._required.builders) return StratConditionResult.Failed;
-
         const extensions = this._room.owned.state.structureState.getExtensions().length;
         if (extensions < this._required.extensions) return StratConditionResult.Parallel;
         return StratConditionResult.Passed;
@@ -28,19 +27,26 @@ export class BuildRCL2Milestone extends Milestone {
         const builders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.build, TaskTypes.stationaryBuild);
         if (builders.length >= this._required.builders) return {};
 
-        const drones = this._room.owned.state.creepState.getCreeps(CreepTypes.genericDrone).filter(x => {
-          const memory = x.memory as DroneMemory;
-          return memory.task?.type !== TaskTypes.build;
+        const drones = this._room.owned.state.creepState.getCreeps(CreepTypes.genericDrone).filter(creep => {
+          const drone = creep as GenericDroneCreep;
+          return drone.memory.task?.type !== TaskTypes.build;
         });
         const buildersNeeded = this._required.builders - builders.length;
 
-        const newBuildTask = () => new BuildTask({ pos: constructionSite.pos });
+        const newBuildTask = () => {
+          if (!!Memory.rooms[this._room.name].stratManager?.["stationaryBuilders"]) {
+            const collectPos = findOpenSpotNearTargets([ constructionSite.pos ], 5);
+            if (!collectPos) return new BuildTask({ pos: constructionSite.pos });
+            return new StationaryBuildTask({ pos: constructionSite.pos, collectPos });
+          }
+          return new BuildTask({ pos: constructionSite.pos });
+        };
 
         const tasksNeeded = Math.min(drones.length, buildersNeeded);
-        const taskNeeds: Task[] = new Array(tasksNeeded).fill(newBuildTask());
+        const taskNeeds: BaseTask[] = new Array(tasksNeeded).fill(newBuildTask());
 
         const creepsNeeded = buildersNeeded - taskNeeds.length;
-        const creepNeeds: ICreepRequirement[] = new Array(creepsNeeded).fill(genericDroneCreep.need(budget, {
+        const creepNeeds: ICreepRequirement[] = new Array(creepsNeeded).fill(new GenericDroneNeed(budget, {
           task: newBuildTask()
         }));
 

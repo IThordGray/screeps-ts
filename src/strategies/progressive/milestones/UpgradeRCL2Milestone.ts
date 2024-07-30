@@ -1,10 +1,12 @@
-import { CreepTypes } from "../../../abstractions/creep-types";
-import { DroneMemory, genericDroneCreep } from "../../../creeps/GenericDrone";
-import { Task } from "../../../tasking/Task";
+import { CreepTypes } from "../../../abstractions/CreepTypes";
+import { GenericDroneNeed } from "../../../creeps/creeps/GenericDrone";
+import { findOpenSpotNearTargets } from "../../../helpers/find-open-spot-near-targets.helper";
+import { BaseTask } from "../../../tasking/BaseTask";
+import { StationaryUpgradeTask } from "../../../tasking/tasks/StationaryUpgradeTask";
 import { UpgradeTask } from "../../../tasking/tasks/UpgradeTask";
 import { TaskTypes } from "../../../tasking/TaskTypes";
-import { StratConditionResult, StratCondition } from "../StratCondition";
 import { Milestone } from "../Milestone";
+import { StratCondition, StratConditionResult } from "../StratCondition";
 
 export class UpgradeRCL2Milestone extends Milestone {
 
@@ -27,22 +29,26 @@ export class UpgradeRCL2Milestone extends Milestone {
         if (upgraders.length >= this._required.upgraders) return {};
 
         const drones = this._room.owned.state.creepState.getCreeps(CreepTypes.genericDrone).filter(x => {
-          const memory = x.memory as DroneMemory;
+          const memory = x.memory as GenericDroneMemory;
           return memory.task?.type !== TaskTypes.upgrade;
         });
 
         const upgradersNeeded = this._required.upgraders - upgraders.length;
 
-        const newUpgradeTask = () => new UpgradeTask({
-          pos: controller.pos,
-          controllerId: controller.id
-        });
+        const newUpgradeTask = () => {
+          if (!!Memory.rooms[this._room.name].stratManager?.["stationaryUpgraders"]) {
+            const collectPos = findOpenSpotNearTargets([ controller.pos ], 5);
+            if (!collectPos) return new UpgradeTask({ pos: controller.pos, controllerId: controller.id });
+            return new StationaryUpgradeTask({ controllerId: controller.id, pos: controller.pos, collectPos });
+          }
+          return new UpgradeTask({ pos: controller.pos, controllerId: controller.id });
+        };
 
         const tasksNeeded = Math.min(drones.length, upgradersNeeded);
-        const taskNeeds: Task[] = new Array(tasksNeeded).fill(newUpgradeTask());
+        const taskNeeds: BaseTask[] = new Array(tasksNeeded).fill(newUpgradeTask());
 
         const creepsNeeded = upgradersNeeded - taskNeeds.length;
-        const creepNeeds: ICreepRequirement[] = new Array(creepsNeeded).fill(genericDroneCreep.need(budget, {
+        const creepNeeds: ICreepRequirement[] = new Array(creepsNeeded).fill(new GenericDroneNeed(budget, {
           task: newUpgradeTask()
         }));
 

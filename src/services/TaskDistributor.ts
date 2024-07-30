@@ -1,5 +1,5 @@
-import { DroneMemory } from "../creeps/GenericDrone";
-import { Task } from "../tasking/Task";
+import { GenericDroneCreep } from "../creeps/creeps/GenericDrone";
+import { BaseTask } from "../tasking/BaseTask";
 import { TaskPriority } from "../tasking/TaskPriority";
 import { TaskTypes } from "../tasking/TaskTypes";
 
@@ -22,7 +22,7 @@ export class TaskDistributor {
     [TaskTypes.scout]: 10
   };
 
-  private taskCompareFn = (a: Task, b: Task) => {
+  private taskCompareFn = (a: BaseTask, b: BaseTask) => {
     const aCost = this._priorityCostsMap[a.priority] + this._taskPriorityCostMap[a.type];
     const bCost = this._priorityCostsMap[b.priority] + this._taskPriorityCostMap[b.type];
     return bCost - aCost;
@@ -33,14 +33,14 @@ export class TaskDistributor {
   ) {
   }
 
-  private assignDroneToTask(drone: Creep, task: Task) {
-    const memory = drone.memory as DroneMemory;
-    memory.task = task;
+  private assignDroneToTask(drone: GenericDroneCreep, task: BaseTask) {
+    drone.memory.task = task;
   }
 
-  private calculateDroneSuitability(drone: Creep, task: Task) {
+  private calculateDroneSuitability(drone: GenericDroneCreep, task: BaseTask) {
     let score = 0;
-    let memory = drone.memory as DroneMemory;
+
+    if (task.type === drone.memory.task.type) score += -Infinity;
 
     if (task.type === TaskTypes.harvest) {
     }
@@ -52,24 +52,24 @@ export class TaskDistributor {
     }
 
     if (task.type === TaskTypes.stationaryUpgrade) {
-      score += (drone.memory as DroneMemory).task?.type === TaskTypes.upgrade ? 60 : 0;
+      score += drone.memory.task?.type === TaskTypes.upgrade ? 60 : 0;
     }
 
     if (task.type === TaskTypes.stationaryBuild) {
-      score += (drone.memory as DroneMemory).task?.type === TaskTypes.build ? 60 : 0;
+      score += drone.memory.task?.type === TaskTypes.build ? 60 : 0;
     }
 
     if (task.type === TaskTypes.repair) {
     }
 
     // Prefer unallocated creeps
-    score -= !!memory.task ? 20 : 0;
+    score -= !!drone.memory.task ? 20 : 0;
 
     return score;
   }
 
-  private findBestDroneForTask(task: Task, drones: Creep[]): Creep | undefined {
-    let bestDrone: Creep | undefined;
+  private findBestDroneForTask(task: BaseTask, drones: GenericDroneCreep[]): GenericDroneCreep | undefined {
+    let bestDrone: GenericDroneCreep | undefined;
     let bestScore = -Infinity;
 
     for (const drone of drones) {
@@ -86,10 +86,10 @@ export class TaskDistributor {
 
   run() {
     const tasks = [ ...this._room.owned.stratManager.getCurrentStrat().taskNeeds ];
-    tasks.sort(this.taskCompareFn)
+    tasks.sort(this.taskCompareFn);
 
-    const unallocatedDrones = this._room.owned.state.taskState.getUnallocatedDrones();
-    const allocatedDrones = this._room.owned.state.taskState.getAllocatedDrones();
+    const unallocatedDrones = this._room.owned.state.taskState.getUnallocatedDrones() as GenericDroneCreep[];
+    const allocatedDrones = this._room.owned.state.taskState.getAllocatedDrones() as GenericDroneCreep[];
 
     const canReassign = tasks.length > unallocatedDrones.length;
     const drones = canReassign ? [ ...allocatedDrones, ...unallocatedDrones ] : unallocatedDrones;
@@ -98,7 +98,6 @@ export class TaskDistributor {
       const task = tasks[i];
       const drone = this.findBestDroneForTask(task, drones);
       if (!drone) continue;
-
       this.assignDroneToTask(drone, task);
     }
   }

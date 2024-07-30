@@ -1,4 +1,4 @@
-import { genericDroneCreep } from "../../../creeps/GenericDrone";
+import { GenericDroneNeed } from "../../../creeps/creeps/GenericDrone";
 import { UpgradeTask } from "../../../tasking/tasks/UpgradeTask";
 import { TaskTypes } from "../../../tasking/TaskTypes";
 import { StratConditionResult, StratCondition } from "../StratCondition";
@@ -28,7 +28,7 @@ export class MaintainRCL2Milestone extends Milestone {
           controllerId: controller.id
         });
 
-        const creepNeeds: ICreepRequirement[] = [ genericDroneCreep.need(budget, {
+        const creepNeeds: ICreepRequirement[] = [ new GenericDroneNeed(budget, {
           task: newUpgradeTask()
         }) ];
 

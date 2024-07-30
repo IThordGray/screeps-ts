@@ -1,14 +1,14 @@
-import { CreepTypes } from "../../../abstractions/creep-types";
+import { CreepTypes } from "../../../abstractions/CreepTypes";
 import { ICreepNeeds, ITaskNeeds } from "../../../abstractions/interfaces";
-import { genericDroneCreep } from "../../../creeps/GenericDrone";
-import { haulerCreep } from "../../../creeps/Hauler";
-import { minerCreep } from "../../../creeps/Miner";
+import { GenericDroneNeed } from "../../../creeps/creeps/GenericDrone";
+import { HaulerNeed } from "../../../creeps/creeps/Hauler";
+import { MinerNeed } from "../../../creeps/creeps/Miner";
 import { getAdjacentRoomNames } from "../../../helpers/get-adjacent-room-names";
 import { TaskPriority } from "../../../tasking/TaskPriority";
 import { ScoutingTask } from "../../../tasking/tasks/Scouting.task";
 import { TaskTypes } from "../../../tasking/TaskTypes";
-import { StratConditionResult, StratCondition } from "../StratCondition";
 import { Milestone } from "../Milestone";
+import { StratCondition, StratConditionResult } from "../StratCondition";
 
 export class MiningMilestone extends Milestone {
 
@@ -33,7 +33,7 @@ export class MiningMilestone extends Milestone {
           const adjacentSpots = source.getMinerSpots();
           for (let i = this._current.miners; i < this._required.miners; i++) {
             const pos = adjacentSpots[i];
-            const need = minerCreep.need(budget, { pos: pos, sourceId: source.id });
+            const need = new MinerNeed(budget, { pos: pos, sourceId: source.id });
             creepNeeds.creeps.push(need);
           }
 
@@ -55,7 +55,7 @@ export class MiningMilestone extends Milestone {
 
           const creepNeeds: ICreepNeeds = { creeps: [] };
 
-          if (this._current.haulers < this._required.haulers) creepNeeds.creeps.push(haulerCreep.need(budget, {
+          if (this._current.haulers < this._required.haulers) creepNeeds.creeps.push(new HaulerNeed(budget, {
             collectPos: source.pos,
             sourceId: source.id,
             dropOffPos: spawn!.pos
@@ -90,7 +90,7 @@ export class MiningMilestone extends Milestone {
           });
 
           if (!drones.length) {
-            creepNeeds.creeps.push(genericDroneCreep.need(budget, {
+            creepNeeds.creeps.push(new GenericDroneNeed(budget, {
               task: scoutingTask
             }));
             return { creeps: creepNeeds };

@@ -1,1 +1,1 @@
-import "./room-services.extensions";
+import "./RoomExtension";

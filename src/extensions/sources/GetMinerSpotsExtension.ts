@@ -1,5 +1,4 @@
 import { CreepTypes } from "../../abstractions/CreepTypes";
-import { MinerMemory } from "../../creeps/creeps/Miner";
 import { PosUtils } from "../../utils/pos.utils";
 
 Source.prototype.getMinerSpots = function() {

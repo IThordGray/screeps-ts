@@ -1,4 +1,4 @@
-import { BlueprintRCL2, BlueprintRCL3, BlueprintRCL4, BlueprintRCL5 } from "../building-plans/blueprints";
+import { BlueprintRCL2, BlueprintRCL3, BlueprintRCL4, BlueprintRCL5 } from "../building-plans/Blueprints";
 import { Vector2 } from "../classes/Vector2";
 
 export class ConstructionManager implements IConstructionManager {

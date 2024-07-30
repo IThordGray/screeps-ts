@@ -1,40 +1,34 @@
-import { CreepTypes } from "../abstractions/creep-types";
-import { BaseCreep } from "../classes/BaseCreep";
-import { Task, TaskExecutorLoader } from "../tasking/Task";
-import { DoTask, IMemoryCanDoTask } from "../units-of-work/doTask";
+import { CreepTypes } from "../../abstractions/CreepTypes";
+import { BaseTask, TaskExecutorLoader } from "../../tasking/BaseTask";
+import { DoTask } from "../../units-of-work/doTask";
+import { BaseCreep, CreepExecutor, CreepExecutorLoader } from "../BaseCreep";
 
-export function isDroneMemory(memory: CreepMemory): memory is DroneMemory {
-  return memory.role === CreepTypes.genericDrone;
+export type GenericDroneCreep = Creep & { memory: GenericDroneMemory };
+
+export class GenericDroneNeed {
+  readonly creepType = CreepTypes.genericDrone;
+  constructor(
+    public readonly budget: number,
+    public readonly memory?: Partial<GenericDroneMemory>
+  ) { }
 }
 
-export interface DroneMemory extends CreepMemory, IMemoryCanDoTask {
-  role: "drone";
+export class GenericDrone extends BaseCreep {
+  constructor(budget: number, memory: GenericDroneMemory) {
+    super(CreepTypes.genericDrone, [ MOVE, WORK, CARRY ], budget, memory);
+  }
 }
 
-export type Drone = Creep & { memory: DroneMemory };
-
-class GenericDroneCreep extends BaseCreep {
-
+export class GenericDroneCreepExecutor extends CreepExecutor<GenericDroneCreep> {
   private readonly _doTask = new DoTask({
-    getTask: (creep: Creep) => (creep.memory as DroneMemory).task,
-    getTaskExecutor: (task: Task) => TaskExecutorLoader.get(task)
+    getTask: (creep: Creep) => (creep.memory as GenericDroneMemory).task,
+    getTaskExecutor: (task: BaseTask) => TaskExecutorLoader.get(task)
   });
 
-  override readonly role: string = CreepTypes.genericDrone;
-  override readonly bodyParts: BodyPartConstant[] = [ MOVE, WORK, CARRY ];
-
-  need(budget: number, memory: Partial<DroneMemory>) {
-    return {
-      creepType: CreepTypes.genericDrone,
-      budget,
-      memory
-    };
-  }
-
-  run(creep: Drone): void {
-    if (!creep) return;
-    this._doTask.run(creep);
+  run(): void {
+    if (!this.creep) return;
+    this._doTask.run(this.creep);
   }
 }
 
-export const genericDroneCreep = new GenericDroneCreep();
+CreepExecutorLoader.register(CreepTypes.genericDrone, GenericDroneCreepExecutor);

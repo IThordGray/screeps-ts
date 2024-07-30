@@ -1,13 +1,10 @@
-import { CreepTypes } from "../../../abstractions/creep-types";
-import { haulerCreep, HaulerMemory } from "../../../creeps/Hauler";
-import { minerCreep } from "../../../creeps/Miner";
-import { BuilderDrone } from "../../../tasking/tasks/BuildTask";
-import { StationaryBuildTask } from "../../../tasking/tasks/StationaryBuildTask";
-import { StationaryUpgradeTask } from "../../../tasking/tasks/StationaryUpgradeTask";
-import { UpgraderDrone } from "../../../tasking/tasks/UpgradeTask";
-import { TaskTypes } from "../../../tasking/TaskTypes";
-import { StratCondition, StratConditionResult } from "../StratCondition";
+import { CreepTypes } from "../../../abstractions/CreepTypes";
+import { EventTypes } from "../../../abstractions/EventTypes";
+import { HaulerNeed } from "../../../creeps/creeps/Hauler";
+import { MinerNeed } from "../../../creeps/creeps/Miner";
+import { eventBus } from "../../../singletons/EventBus";
 import { Milestone } from "../Milestone";
+import { StratCondition, StratConditionResult } from "../StratCondition";
 
 export class AdvancedMiningMilestone extends Milestone {
   init() {
@@ -24,31 +21,37 @@ export class AdvancedMiningMilestone extends Milestone {
 
         sources.forEach(source => {
           const minerSpots = source.getMinerSpots();
-          creepNeeds.push(...minerSpots.map(spot => minerCreep.need(budget, {
+          creepNeeds.push(...minerSpots.map(spot => new MinerNeed(budget, {
             pos: spot,
             sourceId: source.id,
             room: this._room.name
           })));
 
           const [ allocatedHauler ] = haulers.filter(x => (x.memory as HaulerMemory).sourceId === source.id);
-          if (!allocatedHauler) creepNeeds.push(haulerCreep.need(budget, {
+          if (!allocatedHauler) creepNeeds.push(new HaulerNeed(budget, {
             sourceId: source.id,
             collectPos: source.pos,
             dropOffPos: this._room.owned.state.spawn?.pos
           }));
         });
 
-        const builders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.build) as BuilderDrone[];
-        const upgraders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.upgrade) as UpgraderDrone[];
+        Memory.rooms[this._room.name].stratManager ??= {};
+        Memory.rooms[this._room.name].stratManager!['stationaryUpgraders'] = true;
+        Memory.rooms[this._room.name].stratManager!['stationaryBuilders'] = true;
 
-        const taskNeeds = [];
-        taskNeeds.push(...builders.map(builder => new StationaryBuildTask({ pos: builder.memory.task.pos })));
-        taskNeeds.push(...upgraders.map(upgrader => new StationaryUpgradeTask({
-          pos: upgrader.memory.task.pos,
-          controllerId: upgrader.memory.task.controllerId
-        })));
 
-        return { creeps: { creeps: creepNeeds }, tasks: { tasks: taskNeeds } };
+        // const builders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.build) as BuilderDrone[];
+        // const upgraders = this._room.owned.state.taskState.getAllocatedDrones(TaskTypes.upgrade) as UpgraderDrone[];
+
+        // const taskNeeds = [];
+        // taskNeeds.push(...builders.map(builder => new StationaryBuildTask({ pos: builder.memory.task.pos })));
+        //
+        // taskNeeds.push(...upgraders.map(upgrader => new StationaryUpgradeTask({
+        //   pos: upgrader.memory.task.pos,
+        //   controllerId: upgrader.memory.task.controllerId
+        // })));
+
+        return { creeps: { creeps: creepNeeds } };
       }
     ));
   }

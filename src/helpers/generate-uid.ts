@@ -17,3 +17,15 @@ export function generateUID(): string {
     // Combine to get the ObjectId
     return timestamp + randomValue + counter;
 }
+
+
+export function generateUniqueCode() {
+    // Get current time in milliseconds
+    const currentTime = new Date().getTime();
+
+    // Simple transformation: take the last 4 digits of the current time
+    const code = currentTime % 10000;
+
+    // Pad code with leading zeros if necessary
+    return code.toString().padStart(4, '0');
+}

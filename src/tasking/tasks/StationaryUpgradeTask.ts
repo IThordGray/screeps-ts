@@ -1,21 +1,28 @@
-import { COLLECT_STATE } from "../../extensions/creeps/try-collect.extensions";
-import { UPGRADE_STATE, upgradeStateSwitchAction } from "../../extensions/creeps/try-upgrading.extensions";
-import { withdrawStateSwitchAction } from "../../extensions/creeps/try-withdraw.extensions";
+import { COLLECT_STATE } from "../../extensions/creeps/TryCollectExtension";
+import { UPGRADE_STATE, upgradeStateSwitchAction } from "../../extensions/creeps/TryUpgradingExtension";
+import { withdrawStateSwitchAction } from "../../extensions/creeps/TryWithdrawExtension";
 import { CheckState } from "../../units-of-work/check-state";
-import { IMemoryCanUpgrade } from "../../units-of-work/upgrade";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
 
-export type StationaryUpgradeTaskArgs = IMemoryCanUpgrade & TaskArgs;
+export type SUpgraderDrone = Creep & { memory: { task: StationaryUpgradeTaskArgs } }
 
-export class StationaryUpgradeTask extends Task {
+export type StationaryUpgradeTaskArgs = TaskArgs & {
+  pos: RoomPosition;
+  controllerId: Id<StructureController>;
+  collectPos: RoomPosition;
+}
+
+export class StationaryUpgradeTask extends BaseTask {
   override type = TaskTypes.stationaryUpgrade;
   readonly controllerId: Id<StructureController>;
+  readonly collectPos: RoomPosition;
 
   constructor(args: StationaryUpgradeTaskArgs) {
     super(args);
 
     this.controllerId = args.controllerId;
+    this.collectPos = args.collectPos;
   }
 }
 
@@ -32,7 +39,7 @@ export class StationaryUpgradeTaskExecutor extends TaskExecutor<StationaryUpgrad
     }
   });
 
-  run(creep: Creep): any {
+  run(creep: SUpgraderDrone): any {
     if (!creep.isUpgrading && !creep.isCollecting) {
       creep.isUpgrading = true;
     }
@@ -45,7 +52,7 @@ export class StationaryUpgradeTaskExecutor extends TaskExecutor<StationaryUpgrad
     }
 
     if (creep.isCollecting) {
-
+      creep.tryCollect({ pos: creep.memory.task.collectPos, scavengeRange: 1 });
     }
   }
 }

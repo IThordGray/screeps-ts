@@ -30,7 +30,7 @@ declare global {
 
   interface CreepMemory {
     room: string;
-    role: string;
+    type: string;
     state?: string;
   }
 
@@ -39,9 +39,7 @@ declare global {
     controllerLevel?: number;
     controllerId?: string;
     spawningCreep?: string;
-    stratManager?: {
-      currentMilestone?: string;
-    };
+    stratManager?: Record<string, any>;
   }
 
   // Syntax for adding properties to `global` (ex "global.log")

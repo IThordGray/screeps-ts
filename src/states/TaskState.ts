@@ -1,12 +1,12 @@
-import { CreepTypes } from "../abstractions/creep-types";
-import { Task } from "../tasking/Task";
+import { CreepTypes } from "../abstractions/CreepTypes";
+import { BaseTask } from "../tasking/BaseTask";
 import { TaskPriority } from "../tasking/TaskPriority";
 import { IMemoryCanDoTask } from "../units-of-work/doTask";
 
 export class TaskState {
 
   private _unallocatedCreeps: string[] = [];
-  private _allocatedTasks: { [taskId: string]: Task } = {};
+  private _allocatedTasks: { [taskId: string]: BaseTask } = {};
   private _creepTaskAllocationMap: { [creepName: string]: string } = {};
   private _taskCreepAllocationMap: { [taskId: string]: string } = {};
   private _allocatedTasksPerPriority: { [key in TaskPriority]: string[] } = {
@@ -43,9 +43,9 @@ export class TaskState {
   }
 
   allocate(creep: Creep): void {
-    if (creep.memory.role !== CreepTypes.genericDrone) return;
+    if (creep.memory.type !== CreepTypes.genericDrone) return;
 
-    const { task } = creep.memory as { task: Task } & CreepMemory;
+    const { task } = creep.memory as { task: BaseTask } & CreepMemory;
 
     if (task) {
       this._allocatedTasks[task.id] = task;

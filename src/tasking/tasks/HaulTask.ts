@@ -1,12 +1,12 @@
-import { COLLECT_STATE, collectStateSwitchAction } from "../../extensions/creeps/try-collect.extensions";
-import { DELIVER_STATE, deliverStateSwitchAction } from "../../extensions/creeps/try-deliver.extensions";
+import { COLLECT_STATE, collectStateSwitchAction } from "../../extensions/creeps/TryCollectExtension";
+import { DELIVER_STATE, deliverStateSwitchAction } from "../../extensions/creeps/TryDeliverExtension";
 import { CheckState } from "../../units-of-work/check-state";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
 
 export type HaulTaskArgs = { pickupPos: RoomPosition, dropOffPos: RoomPosition } & TaskArgs;
 
-export class HaulTask extends Task {
+export class HaulTask extends BaseTask {
   readonly type = TaskTypes.haul;
   readonly dropOffPos: RoomPosition;
   readonly collectPos: RoomPosition;

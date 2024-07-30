@@ -16,13 +16,13 @@ beforeEach(() => {
 
 describe("main loop", () => {
   it("should run the main loop", () => {
-    const drone = mockInstanceOf<Creep>({ memory: { role: 'drone', room: 'myRoom' }}, true);
+    const drone = mockInstanceOf<Creep>({ memory: { type: 'drone', room: 'myRoom' }}, true);
     Game.rooms.myRoom = myRoom;
     Game.creeps['droneA'] = drone;
 
     Memory.creeps = {
       droneA: drone.memory,
-      dead: { role: 'dead', room: 'a' }
+      dead: { type: 'dead', room: 'a' }
     }
 
     unwrappedLoop();

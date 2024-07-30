@@ -1,6 +1,6 @@
 import { mockGlobal, mockInstanceOf } from "screeps-jest";
-import { CreepTypes } from "../src/abstractions/creep-types";
-import { DroneMemory } from "../src/creeps/GenericDrone";
+import { CreepTypes } from "../src/abstractions/CreepTypes";
+import { DroneMemory } from "../src/creeps/creeps/GenericDrone";
 import { Logger } from "../src/helpers/logger";
 import { StratManager } from "../src/services/StratManager";
 import { TaskState } from "../src/states/TaskState";
@@ -23,10 +23,10 @@ const myRoom = mockInstanceOf<Room>({
 
 });
 
-const drone1 = mockInstanceOf<Creep>({ name: "drone1", memory: { role: CreepTypes.genericDrone, task: undefined } });
-const drone2 = mockInstanceOf<Creep>({ name: "drone2", memory: { role: CreepTypes.genericDrone, task: undefined } });
-const drone3 = mockInstanceOf<Creep>({ name: "drone3", memory: { role: CreepTypes.genericDrone, task: undefined } });
-const drone4 = mockInstanceOf<Creep>({ name: "drone4", memory: { role: CreepTypes.genericDrone, task: undefined } });
+const drone1 = mockInstanceOf<Creep>({ name: "drone1", memory: { type: CreepTypes.genericDrone, task: undefined } });
+const drone2 = mockInstanceOf<Creep>({ name: "drone2", memory: { type: CreepTypes.genericDrone, task: undefined } });
+const drone3 = mockInstanceOf<Creep>({ name: "drone3", memory: { type: CreepTypes.genericDrone, task: undefined } });
+const drone4 = mockInstanceOf<Creep>({ name: "drone4", memory: { type: CreepTypes.genericDrone, task: undefined } });
 
 spyOn(Logger, "info").mockImplementation(() => {
 });

@@ -4,9 +4,9 @@ import { TaskPriority } from "./TaskPriority";
 
 export type TaskArgs = { pos: RoomPosition; priority?: TaskPriority }
 
-export type TaskExecutorArgs<T extends Task> = { task: T }
+export type TaskExecutorArgs<T extends BaseTask> = { task: T }
 
-export abstract class Task implements ITask {
+export abstract class BaseTask implements ITask {
   abstract readonly type: TaskType;
 
   readonly id = generateUID();
@@ -19,7 +19,7 @@ export abstract class Task implements ITask {
   }
 }
 
-export abstract class TaskExecutor<T extends Task> {
+export abstract class TaskExecutor<T extends BaseTask> {
   readonly task: T;
 
   constructor(args: TaskExecutorArgs<T>) {
@@ -30,9 +30,9 @@ export abstract class TaskExecutor<T extends Task> {
 }
 
 export class TaskExecutorLoader {
-  private static _taskExecutors: { [taskType: string]: Type<TaskExecutor<Task>> } = {};
+  private static _taskExecutors: { [taskType: string]: Type<TaskExecutor<BaseTask>> } = {};
 
-  static get(task: Task) {
+  static get(task: BaseTask) {
     const executor = this._taskExecutors[task.type];
     if (!executor) return;
 

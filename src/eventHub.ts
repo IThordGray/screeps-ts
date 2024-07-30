@@ -1,4 +1,4 @@
-import { EventTypes } from "./abstractions/eventTypes";
+import { EventTypes } from "./abstractions/EventTypes";
 import { Logger } from "./helpers/logger";
 import { eventBus } from "./singletons/EventBus";
 

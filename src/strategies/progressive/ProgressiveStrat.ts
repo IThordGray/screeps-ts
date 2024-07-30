@@ -1,7 +1,7 @@
-import { EventTypes } from "../../abstractions/eventTypes";
+import { EventTypes } from "../../abstractions/EventTypes";
 import { IStratNeeds } from "../../abstractions/interfaces";
 import { eventBus } from "../../singletons/EventBus";
-import { Task } from "../../tasking/Task";
+import { BaseTask } from "../../tasking/BaseTask";
 import { AdvancedMiningMilestone } from "./milestones/AdvancedMiningMilestone";
 import { BuildRCL2Milestone } from "./milestones/BuildRCL2Milestone";
 import { StarterMilestone } from "./milestones/StarterMilestone";
@@ -18,7 +18,7 @@ export class StratConfig {
 export class ProgressiveStrat implements IStrat {
   private readonly _config = new StratConfig();
 
-  private _taskRequirements: Task[] = [];
+  private _taskRequirements: BaseTask[] = [];
   private _creepRequirement: ICreepRequirement[] = [];
   // private _structureNeeds?: IStructureNeeds;
   // private _controllerNeeds?: IControllerNeeds | undefined;

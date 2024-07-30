@@ -1,29 +1,27 @@
-import { CreepTypes } from "../abstractions/creep-types";
-import { BaseCreep } from "../classes/BaseCreep";
-import { IMemoryCanHarvest } from "../units-of-work/harvest";
+import { CreepTypes } from "../../abstractions/CreepTypes";
+import { BaseCreep, CreepExecutor, CreepExecutorLoader } from "../BaseCreep";
 
-export function isMinerMemory(memory: CreepMemory): memory is MinerMemory {
-  return memory.role === CreepTypes.miner;
+export type MinerCreep = Creep & { memory: MinerMemory };
+
+export class MinerNeed {
+  readonly creepType = CreepTypes.miner;
+
+  constructor(
+    public readonly budget: number,
+    public readonly memory?: Partial<MinerMemory>
+  ) { }
 }
 
-export interface MinerMemory extends CreepMemory, IMemoryCanHarvest {
-  role: "miner";
-}
-
-export type Miner = Creep & { memory: MinerMemory };
-
-class MinerCreep extends BaseCreep {
-  override readonly role = CreepTypes.miner;
-  override readonly bodyParts = [ WORK, WORK, MOVE ];
-
-  need(budget: number, memory: Partial<MinerMemory>) {
-    return { creepType: CreepTypes.miner, budget, memory };
+export class Miner extends BaseCreep {
+  constructor(budget: number, memory: MinerMemory) {
+    super(CreepTypes.miner, [ WORK, WORK, MOVE ], budget, memory);
   }
-
-  run(creep: Miner) {
-    creep.tryMine({ targetId: creep.memory.sourceId, pos: creep.memory.pos });
-  }
-
 }
 
-export const minerCreep = new MinerCreep();
+export class MinerCreepExecutor extends CreepExecutor<MinerCreep> {
+  run(): void {
+    this.creep.tryMine({ targetId: this.creep.memory.sourceId, pos: this.creep.memory.pos });
+  }
+}
+
+CreepExecutorLoader.register(CreepTypes.miner, MinerCreepExecutor);

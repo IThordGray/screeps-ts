@@ -1,12 +1,12 @@
-import { Task, TaskExecutor } from "../tasking/Task";
+import { BaseTask, TaskExecutor } from "../tasking/BaseTask";
 
 export interface IMemoryCanDoTask {
-  task: Task;
+  task: BaseTask;
 }
 
 export type DoTaskArgs = {
-  getTask: (creep: Creep) => Task | undefined;
-  getTaskExecutor: (task: Task) => TaskExecutor<any> | undefined;
+  getTask: (creep: Creep) => BaseTask | undefined;
+  getTaskExecutor: (task: BaseTask) => TaskExecutor<any> | undefined;
 };
 
 export class DoTask {

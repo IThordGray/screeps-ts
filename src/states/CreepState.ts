@@ -9,8 +9,8 @@ export class CreepState {
   ) { }
 
   add(creep: Creep) {
-    const { role } = creep.memory;
-    this._creepTypes[role] ??= [];
-    this._creepTypes[role].push(creep);
+    const { type } = creep.memory;
+    this._creepTypes[type] ??= [];
+    this._creepTypes[type].push(creep);
   }
 }

@@ -1,29 +1,28 @@
-import { CreepTypes } from "../abstractions/creep-types";
-import { BaseCreep } from "../classes/BaseCreep";
-import { COLLECT_STATE, collectStateSwitchAction } from "../extensions/creeps/try-collect.extensions";
-import { DELIVER_STATE, deliverStateSwitchAction } from "../extensions/creeps/try-deliver.extensions";
-import { findOptimalClusterPosition } from "../helpers/find-cluster-position.helper";
-import { UpgraderDrone } from "../tasking/tasks/UpgradeTask";
-import { TaskTypes } from "../tasking/TaskTypes";
-import { CheckState } from "../units-of-work/check-state";
-import { PosUtils } from "../utils/pos.utils";
+import { CreepTypes } from "../../abstractions/CreepTypes";
+import { COLLECT_STATE, collectStateSwitchAction } from "../../extensions/creeps/TryCollectExtension";
+import { DELIVER_STATE, deliverStateSwitchAction } from "../../extensions/creeps/TryDeliverExtension";
+import { TaskTypes } from "../../tasking/TaskTypes";
+import { CheckState } from "../../units-of-work/check-state";
+import { PosUtils } from "../../utils/pos.utils";
+import { BaseCreep, CreepExecutor, CreepExecutorLoader } from "../BaseCreep";
 
-export function isHaulerMemory(memory: CreepMemory): memory is HaulerMemory {
-  return memory.role === CreepTypes.hauler;
+export class HaulerNeed {
+  readonly creepType = CreepTypes.hauler;
+
+  constructor(
+    public readonly budget: number,
+    public readonly memory?: Partial<HaulerMemory>
+  ) { }
 }
 
-export interface HaulerMemory extends CreepMemory {
-  role: "hauler";
-  sourceId: Id<Source>;
-  targetId?: Id<AnyCreep> | Id<Structure>;
-  collectPos?: RoomPosition;
-  dropOffPos?: RoomPosition;
+
+export class Hauler extends BaseCreep {
+  constructor(budget: number, memory: HaulerMemory) {
+    super(CreepTypes.hauler, [ CARRY, MOVE ], budget, memory);
+  }
 }
 
-export type Hauler = Creep & { memory: HaulerMemory };
-
-class HaulerCreep extends BaseCreep {
-
+export class HaulerCreepExecutor extends CreepExecutor<HaulerCreep> {
   private readonly _checkState = new CheckState({
     [DELIVER_STATE]: {
       condition: creep => creep.isCollecting && creep.store.getFreeCapacity() === 0,
@@ -35,24 +34,18 @@ class HaulerCreep extends BaseCreep {
     }
   });
 
-  override readonly role = CreepTypes.hauler;
-  override readonly bodyParts = [ CARRY, MOVE ];
+  run() {
+    this.creep.memory.state ??= COLLECT_STATE;
+    this._checkState.check(this.creep);
 
-  need(budget: number, memory: Partial<HaulerMemory>) {
-    return {
-      creepType: CreepTypes.hauler,
-      budget,
-      memory
-    };
-  }
+    if (this.creep.isDelivering) {
+      /*
+        const destination = Game.rooms[creep.memory.room].logisticsManager.getDeliveryDestination(this.creep);
+        return this.creep.tryDeliver({ destination });
+      */
 
-  run(creep: Hauler) {
-    creep.memory.state ??= COLLECT_STATE;
-    this._checkState.check(creep);
-
-    if (creep.isDelivering) {
-      const dropOffPos = PosUtils.new(creep.memory.dropOffPos);
-      const targetId = creep.memory.targetId;
+      const dropOffPos = PosUtils.new(this.creep.memory.dropOffPos);
+      const targetId = this.creep.memory.targetId;
 
       if (dropOffPos && !targetId) {
         const room = Game.rooms[dropOffPos.roomName];
@@ -60,29 +53,35 @@ class HaulerCreep extends BaseCreep {
 
         if (spawn) {
           const deliverToSpawn = spawn.store.getFreeCapacity(RESOURCE_ENERGY) !== 0 || spawn.hasSpawnRequests;
-          if (deliverToSpawn) return creep.tryDeliver({ pos: spawn.pos, targetId: spawn.id });
+          if (deliverToSpawn) return this.creep.tryDeliver({ pos: spawn.pos, targetId: spawn.id });
         }
 
         const extensions = room.owned?.state.structureState.getExtensions().filter(x => !!x.store.getFreeCapacity());
-        if (!!extensions?.length) return creep.tryDeliver({ pos: extensions[0].pos, targetId: extensions[0].id });
+        if (!!extensions?.length) return this.creep.tryDeliver({ pos: extensions[0].pos, targetId: extensions[0].id });
 
         const stationaryBuilders = room.owned?.state.taskState.getAllocatedDrones(TaskTypes.stationaryBuild).filter(x => x.store.getFreeCapacity(RESOURCE_ENERGY) > 25);
-        if (!!stationaryBuilders?.length) return creep.tryTransfer({ target: stationaryBuilders[0] });
+        if (!!stationaryBuilders?.length) {
+
+          return this.creep.tryTransfer({ target: stationaryBuilders[0] });
+        }
 
         const stationaryUpgraders = room.owned?.state.taskState.getAllocatedDrones(TaskTypes.stationaryUpgrade).filter(x => x.store.getFreeCapacity(RESOURCE_ENERGY) > 25);
-        if (!!stationaryUpgraders?.length) return creep.tryTransfer({ target: stationaryUpgraders[0] });
+        if (!!stationaryUpgraders?.length) return this.creep.tryTransfer({ target: stationaryUpgraders[0] });
       }
 
-      if (dropOffPos && targetId) return creep.tryDeliver({ pos: dropOffPos, targetId: creep.memory.targetId });
+      if (dropOffPos && targetId) return this.creep.tryDeliver({
+        pos: dropOffPos,
+        targetId: this.creep.memory.targetId
+      });
     }
 
-    if (creep.isCollecting) {
-      const collectPos = creep.memory.collectPos;
-      return creep.tryCollect({ pos: collectPos });
+    if (this.creep.isCollecting) {
+      const collectPos = this.creep.memory.collectPos;
+      return this.creep.tryCollect({ pos: collectPos });
     }
 
     return;
   }
 }
 
-export const haulerCreep = new HaulerCreep();
+CreepExecutorLoader.register(CreepTypes.hauler, HaulerCreepExecutor);

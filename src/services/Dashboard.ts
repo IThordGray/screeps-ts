@@ -1,4 +1,4 @@
-import { CreepTypes } from "../abstractions/creep-types";
+import { CreepTypes } from "../abstractions/CreepTypes";
 import { TableConfig, VisualUtils } from "../helpers/visualUtils";
 import { TaskTypes } from "../tasking/TaskTypes";
 

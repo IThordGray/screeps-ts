@@ -1,4 +1,4 @@
-import { Task } from "../tasking/Task";
+import { BaseTask } from "../tasking/BaseTask";
 
 export interface ICreepNeeds {
   creeps: ICreepRequirement[];
@@ -12,7 +12,7 @@ export interface IControllerNeeds {
 }
 
 export interface ITaskNeeds {
-  tasks: Task[];
+  tasks: BaseTask[];
 }
 
 export interface IStratNeeds {

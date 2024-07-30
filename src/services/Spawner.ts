@@ -1,9 +1,4 @@
-import { CreepTypes } from "../abstractions/creep-types";
-import { EventTypes } from "../abstractions/eventTypes";
-import { DroneMemory, genericDroneCreep } from "../creeps/GenericDrone";
-import { haulerCreep, HaulerMemory } from "../creeps/Hauler";
-import { minerCreep, MinerMemory } from "../creeps/Miner";
-import { scoutCreep, ScoutMemory } from "../creeps/Scout";
+import { EventTypes } from "../abstractions/EventTypes";
 import { eventBus } from "../singletons/EventBus";
 
 export class Spawner implements ISpawner {
@@ -38,7 +33,7 @@ export class Spawner implements ISpawner {
       miner: () => this.spawnMiner(budget, memory),
       hauler: () => this.spawnHauler(budget, memory),
       scout: () => this.spawnScout(budget, memory),
-      drone: () => this.spawnDrone(budget, memory)
+      genericDrone: () => this.spawnGenericDrone(budget, memory)
     };
 
     spawnMap[creepType]();
@@ -51,32 +46,20 @@ export class Spawner implements ISpawner {
     this.spawnCreep(creepToBuild.creepType, creepToBuild.budget, creepToBuild.memory);
   }
 
-  spawnDrone(budget: number, m: Partial<DroneMemory> = {}) {
-    if (this.spawning) return;
-    const memory: any = { role: CreepTypes.genericDrone, room: this._room.name, ...m };
-    const name = genericDroneCreep.getName();
-    this.spawn.spawnCreep(genericDroneCreep.getBody(budget), name, { memory });
+  spawnGenericDrone(budget: number, m: Partial<GenericDroneMemory> = {}) {
+    this.spawn.spawnGenericDrone(budget, { room: this._room.name, ...m } as any);
   }
 
   spawnHauler(budget: number, m: Partial<HaulerMemory> = {}) {
-    if (!!this.spawning) return;
-    const memory: any = { role: CreepTypes.hauler, room: this._room.name, ...m };
-    const name = haulerCreep.getName();
-    this.spawn.spawnCreep(haulerCreep.getBody(budget), name, { memory });
+    this.spawn.spawnHauler(budget, { room: this._room.name, ...m } as any);
   }
 
   spawnMiner(budget: number, m: Partial<MinerMemory> = {}) {
-    if (!!this.spawning) return;
-    const memory: any = { role: CreepTypes.miner, room: this._room.name, ...m };
-    const name = minerCreep.getName();
-    this.spawn.spawnCreep(minerCreep.getBody(budget), name, { memory });
+    this.spawn.spawnMiner(budget, { room: this._room.name, ...m } as any);
   }
 
   spawnScout(budget: number, m: Partial<ScoutMemory> = {}) {
-    if (!!this.spawning) return;
-    const memory: any = { role: CreepTypes.scout, room: this._room.name, ...m };
-    const name = scoutCreep.getName();
-    this.spawn.spawnCreep(scoutCreep.getBody(budget), name, { memory });
+    this.spawn.spawnScout(budget, { room: this._room.name, ...m } as any);
   }
 
   update() {

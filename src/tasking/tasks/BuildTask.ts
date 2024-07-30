@@ -1,8 +1,8 @@
-import { BUILD_STATE, buildStateSwitchAction } from "../../extensions/creeps/try-build.extensions";
-import { COLLECT_STATE } from "../../extensions/creeps/try-collect.extensions";
-import { withdrawStateSwitchAction } from "../../extensions/creeps/try-withdraw.extensions";
+import { BUILD_STATE, buildStateSwitchAction } from "../../extensions/creeps/TryBuildExtension";
+import { COLLECT_STATE } from "../../extensions/creeps/TryCollectExtension";
+import { withdrawStateSwitchAction } from "../../extensions/creeps/TryWithdrawExtension";
 import { CheckState } from "../../units-of-work/check-state";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
 
 export type BuilderDrone = Creep & { memory: { task: BuildTaskArgs } }
@@ -12,7 +12,7 @@ export type BuildTaskArgs = TaskArgs & {
   constructionSiteId?: Id<ConstructionSite>;
 };
 
-export class BuildTask extends Task {
+export class BuildTask extends BaseTask {
   override type = TaskTypes.build;
   readonly structureType?: BuildableStructureConstant;
   readonly constructionSiteId?: Id<ConstructionSite>;

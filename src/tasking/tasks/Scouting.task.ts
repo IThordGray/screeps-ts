@@ -1,11 +1,10 @@
-import { DroneMemory } from "../../creeps/GenericDrone";
 import { IMemoryCanScout, Scout } from "../../units-of-work/scout";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
 
 export type ScoutingTaskArgs = { roomNames: string[] } & TaskArgs;
 
-export class ScoutingTask extends Task implements IMemoryCanScout {
+export class ScoutingTask extends BaseTask implements IMemoryCanScout {
   override type = TaskTypes.scout;
   readonly roomNames: string[];
 
@@ -22,7 +21,7 @@ export class ScoutingTaskExecutor extends TaskExecutor<ScoutingTask> {
     getNewPosition: (creep: Creep) => {
       const roomName = this.task.roomNames.shift();
       if (!roomName) {
-        (creep.memory as DroneMemory).task = undefined as any;
+        (creep.memory as GenericDroneMemory).task = undefined as any;
         return;
       }
 

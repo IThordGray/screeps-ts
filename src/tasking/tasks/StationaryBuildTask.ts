@@ -1,25 +1,31 @@
-import { BUILD_STATE, buildStateSwitchAction } from "../../extensions/creeps/try-build.extensions";
-import { COLLECT_STATE } from "../../extensions/creeps/try-collect.extensions";
-import { withdrawStateSwitchAction } from "../../extensions/creeps/try-withdraw.extensions";
+import { BUILD_STATE, buildStateSwitchAction } from "../../extensions/creeps/TryBuildExtension";
+import { COLLECT_STATE } from "../../extensions/creeps/TryCollectExtension";
+import { withdrawStateSwitchAction } from "../../extensions/creeps/TryWithdrawExtension";
 import { CheckState } from "../../units-of-work/check-state";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
+import { BuilderDrone, BuildTaskArgs } from "./BuildTask";
+
+export type SBuilderDrone = Creep & { memory: { task: StationaryBuildTaskArgs } }
 
 export type StationaryBuildTaskArgs = TaskArgs & {
   structureType?: BuildableStructureConstant;
   constructionSiteId?: Id<ConstructionSite>;
+  collectPos: RoomPosition;
 };
 
-export class StationaryBuildTask extends Task {
+export class StationaryBuildTask extends BaseTask {
   override type = TaskTypes.stationaryBuild;
   readonly structureType?: BuildableStructureConstant;
   readonly constructionSiteId?: Id<ConstructionSite>;
+  readonly collectPos: RoomPosition;
 
   constructor(args: StationaryBuildTaskArgs) {
     super(args);
 
     this.structureType = args.structureType;
     this.constructionSiteId = args.constructionSiteId;
+    this.collectPos = args.collectPos;
   }
 }
 
@@ -37,7 +43,7 @@ export class StationaryBuildTaskExecutor extends TaskExecutor<StationaryBuildTas
     }
   });
 
-  run(creep: Creep): any {
+  run(creep: SBuilderDrone): any {
     if (!creep.isCollecting && !creep.isBuilding) {
       creep.isBuilding = true;
     }
@@ -49,7 +55,7 @@ export class StationaryBuildTaskExecutor extends TaskExecutor<StationaryBuildTas
     }
 
     if (creep.isCollecting) {
-      /* Notify haulers that I am receiving */
+      creep.tryCollect({ pos: creep.memory.task.collectPos, scavengeRange: 1 });
     }
   }
 }

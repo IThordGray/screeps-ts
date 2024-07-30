@@ -1,4 +1,7 @@
-StructureSpawn.prototype.spawnMiner = function(budget: number, memory: MinerMemory) {
-  const miner = new Miner(budget, memory);
-  return this.spawnCreep(miner.body, miner.name, { memory: miner.memory });
+import { Hauler } from "../../creeps/creeps/Hauler";
+
+StructureSpawn.prototype.spawnHauler = function(budget: number, memory: HaulerMemory) {
+  if (!!this.spawning) return ERR_BUSY;
+  const creep = new Hauler(budget, memory);
+  return this.spawnCreep(creep.body, creep.name, { memory: creep.memory });
 };

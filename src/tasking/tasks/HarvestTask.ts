@@ -1,12 +1,12 @@
-import { DELIVER_STATE, deliverStateSwitchAction } from "../../extensions/creeps/try-deliver.extensions";
-import { HARVEST_STATE, harvestStateSwitchAction } from "../../extensions/creeps/try-harvest.extensions";
+import { DELIVER_STATE, deliverStateSwitchAction } from "../../extensions/creeps/TryDeliverExtension";
+import { HARVEST_STATE, harvestStateSwitchAction } from "../../extensions/creeps/TryHarvestExtension";
 import { CheckState } from "../../units-of-work/check-state";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
 
 export type HarvestTaskArgs = { sourceId: Id<Source> } & TaskArgs;
 
-export class HarvestTask extends Task {
+export class HarvestTask extends BaseTask {
   readonly type = TaskTypes.harvest;
   readonly sourceId: Id<Source>;
 

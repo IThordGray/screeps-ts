@@ -1,16 +1,16 @@
-import { COLLECT_STATE } from "../../extensions/creeps/try-collect.extensions";
-import { UPGRADE_STATE, upgradeStateSwitchAction } from "../../extensions/creeps/try-upgrading.extensions";
-import { withdrawStateSwitchAction } from "../../extensions/creeps/try-withdraw.extensions";
+import { COLLECT_STATE } from "../../extensions/creeps/TryCollectExtension";
+import { UPGRADE_STATE, upgradeStateSwitchAction } from "../../extensions/creeps/TryUpgradingExtension";
+import { withdrawStateSwitchAction } from "../../extensions/creeps/TryWithdrawExtension";
 import { CheckState } from "../../units-of-work/check-state";
 import { IMemoryCanUpgrade } from "../../units-of-work/upgrade";
-import { Task, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../Task";
+import { BaseTask, TaskArgs, TaskExecutor, TaskExecutorLoader } from "../BaseTask";
 import { TaskTypes } from "../TaskTypes";
 
 export type UpgraderDrone = Creep & { memory: { task: UpgradeTaskArgs } }
 
 export type UpgradeTaskArgs = IMemoryCanUpgrade & TaskArgs;
 
-export class UpgradeTask extends Task {
+export class UpgradeTask extends BaseTask {
   override type = TaskTypes.upgrade;
   readonly controllerId: Id<StructureController>;
 

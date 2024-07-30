@@ -1,37 +1,26 @@
-import { CreepTypes } from "../abstractions/creep-types";
-import { BaseCreep } from "../classes/BaseCreep";
-import { Scout } from "../units-of-work/scout";
+import { CreepTypes } from "../../abstractions/CreepTypes";
+import { BaseCreep, CreepExecutor, CreepExecutorLoader } from "../BaseCreep";
 
-export function isScoutMemory(memory: CreepMemory): memory is ScoutMemory {
-  return memory.role === CreepTypes.scout;
+export type ScoutCreep = Creep & { memory: ScoutMemory }
+
+export class ScoutNeed {
+  readonly creepType = CreepTypes.scout;
+
+  constructor(
+    public readonly budget: number,
+    public readonly memory?: Partial<ScoutMemory>
+  ) { }
 }
 
-export interface ScoutMemory extends CreepMemory {
-  role: "scout";
-  target: RoomPosition | undefined;
-  roomNames: string[];
-}
-
-class ScoutCreep extends BaseCreep {
-  private readonly _scout = new Scout({
-    getPosition: (creep: Creep) => (creep.memory as ScoutMemory).target,
-    getNewPosition: (creep: Creep) => {
-      const newRoom = (creep.memory as ScoutMemory).roomNames.shift();
-      if (!newRoom) return;
-      return new RoomPosition(25, 25, newRoom);
-    }
-  });
-
-  override readonly role = CreepTypes.scout;
-  override readonly bodyParts: BodyPartConstant[] = [ MOVE, MOVE, MOVE, MOVE, MOVE, MOVE ];
-
-  need(budget: number, memory: Partial<ScoutMemory>) {
-    return { creepType: CreepTypes.scout, budget, memory };
-  }
-
-  run(creep: Creep): void {
-    this._scout.run(creep);
+export class Scout extends BaseCreep {
+  constructor(budget: number, memory: ScoutMemory) {
+    super(CreepTypes.scout, [ MOVE, MOVE, MOVE, MOVE, MOVE, MOVE ], budget, memory);
   }
 }
 
-export const scoutCreep = new ScoutCreep();
+export class ScoutCreepExecutor extends CreepExecutor<ScoutCreep> {
+  run(): void {
+  }
+}
+
+CreepExecutorLoader.register(CreepTypes.scout, ScoutCreepExecutor);

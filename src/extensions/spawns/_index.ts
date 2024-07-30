@@ -1,3 +1,7 @@
-import "./is-empty.extensions";
-import "./is-full.extensions";
-import "./has-spawn-request.extensions";
+import "./IsEmptyExtension";
+import "./IsFullExtension";
+import "./HasSpawnRequestExtension";
+import "./SpawnGenericDroneExtension";
+import "./SpawnHaulerExtension";
+import "./SpawnScoutExtension";
+import "./SpawnMinerExtension";
